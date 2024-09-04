@@ -1,0 +1,11 @@
+{
+	"start":	{
+		"connected":	[],
+		"version":	"iperf 3.17.1",
+		"system_info":	"Linux 331cbb43244a 6.10.6-arch1-1 #1 SMP PREEMPT_DYNAMIC Mon, 19 Aug 2024 17:02:39 +0000 x86_64"
+	},
+	"intervals":	[],
+	"end":	{
+	},
+	"error":	"unable to receive control message - port may not be available, the other side may have stopped running, etc.: Connection reset by peer"
+}
