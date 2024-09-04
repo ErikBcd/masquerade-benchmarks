@@ -1,0 +1,10 @@
+# This file holds masquerade clients that registered static ip addresses
+# You may add new clients here following this scheme: 
+# [[clients]]
+# id = 'exampleID'
+# ip = '10.8.1.1'
+
+[[clients]]
+id = 'client'
+ip = '10.8.1.1'
+

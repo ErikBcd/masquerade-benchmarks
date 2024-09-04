@@ -1,0 +1,66 @@
+services:
+  masquerade_server:
+    image: masq_server
+    container_name: masquerade_server
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    volumes:
+      - /home/estugon/Sources/bachelor_thesis/Evaluation/masquerade-benchmarks/data-gathering/server-config:/config:rw
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    networks:
+      default:
+        ipv4_address: 172.20.0.200
+    ports:
+      - "4433:4433/udp"
+    restart: no
+    stop_grace_period: 1s
+  Masquerade:
+    container_name: masq_client
+    image: masq_iperf3_client
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    volumes:
+      - /home/estugon/Sources/bachelor_thesis/Evaluation/masquerade-benchmarks/data-gathering/client-config:/config:rw
+    networks:
+      default:
+        ipv4_address: 172.20.0.100
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    restart: no
+    stop_grace_period: 1s
+    depends_on:
+      - masquerade_server
+  iperf3:
+    container_name: iperf3-client-masq
+    image: iperf3_client
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - /home/estugon/Sources/bachelor_thesis/Evaluation/masquerade-benchmarks/data-gathering/iperf-logs:/iperf:rw
+      - /home/estugon/Sources/bachelor_thesis/Evaluation/masquerade-benchmarks/data-gathering/iperf-tests:/tests:rw
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - CURRENT=2
+      - BITRATE=100
+    network_mode: service:Masquerade
+    depends_on:
+      - Masquerade
+networks:
+  default:
+    name: masqNet
+    external: true
