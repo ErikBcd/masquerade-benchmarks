@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Building iperf3 image!"
+echo "Building iperf3 client image!"
 docker buildx build --tag iperf3_client ./iperf3-docker/
 
 echo "Building Masquerade Client image!"

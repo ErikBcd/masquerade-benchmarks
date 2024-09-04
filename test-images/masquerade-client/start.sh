@@ -43,9 +43,11 @@ echo "#################################################################"
 #iptables -A FORWARD -p tcp --sport 7070 -j ACCEPT
 #iptables -A FORWARD -p tcp --dport 7070 -j ACCEPT
 
-#iptables -P INPUT ACCEPT
-#iptables -P FORWARD ACCEPT
-#iptables -P OUTPUT ACCEPT
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+sudo iptables -A INPUT -p udp --dport 7070 -d 0/0 -s 0/0 -j ACCEPT
+sudo iptables -A INPUT -p udp --sport 7070 -d 0/0 -s 0/0 -j ACCEPT
 
 echo ""
 echo ""
