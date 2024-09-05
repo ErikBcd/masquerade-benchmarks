@@ -1,0 +1,68 @@
+---
+services:
+  wireguard_server:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard_server
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - PEERS=iperf3client #optional
+      - PEERDNS=auto #optional
+      - SERVERURL=192.168.0.71
+      - LOG_CONFS=true #optional
+    volumes:
+      - ./wireguard-server-config:/config
+    ports:
+      - 51820:51820/udp
+      - 7070:7070/udp
+      - 7070:7070/tcp
+    networks:
+      default:
+        ipv4_address: 172.20.0.200
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+  wireguard_client:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard_client
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./wireguard-client-config:/config
+    networks:
+      default:
+        ipv4_address: 172.20.0.100
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+    depends_on:
+      - wireguard_server
+  iperf3:
+    container_name: iperf3-client-masq
+    image: iperf3_client
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./iperf-logs:/iperf:rw
+      - ./iperf-tests:/tests:r
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - CURRENT=2
+      - BITRATE=100
+      - IPERF_SERVER_IP="192.168.0.45"
+    network_mode: service:wireguard_client
+    depends_on:
+      - wireguard_client
+networks:
+  default:
+    name: masqNet
+    external: true

@@ -162,3 +162,7 @@ cython_debug/
 #.idea/
 
 iperf-logs
+
+wireguard-client-config
+wireguard-server-config
+wireguard-wg-easy
