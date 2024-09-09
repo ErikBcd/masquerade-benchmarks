@@ -1,7 +1,7 @@
 services:
   Masquerade:
     container_name: masq_client
-    image: masq_iperf3_client
+    image: masq_iperf3_client_external
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
