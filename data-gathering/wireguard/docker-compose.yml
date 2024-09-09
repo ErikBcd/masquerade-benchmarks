@@ -25,6 +25,7 @@ services:
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
     restart: unless-stopped
+    stop_grace_period: 1s
   wireguard_client:
     image: lscr.io/linuxserver/wireguard:latest
     container_name: wireguard_client
@@ -42,6 +43,7 @@ services:
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
     restart: unless-stopped
+    stop_grace_period: 1s
     depends_on:
       - wireguard_server
   iperf3:
