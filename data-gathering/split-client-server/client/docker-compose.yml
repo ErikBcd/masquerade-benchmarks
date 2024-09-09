@@ -1,0 +1,43 @@
+services:
+  Masquerade:
+    container_name: masq_client
+    image: masq_iperf3_client
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    volumes:
+      - ./client-config:/config:rw
+    networks:
+      default:
+        ipv4_address: 172.20.0.100
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    restart: no
+    stop_grace_period: 0s
+  iperf3:
+    container_name: iperf3-client-masq
+    image: iperf3_client
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./iperf-logs:/iperf:rw
+      - ./iperf-tests:/tests:rw
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - CURRENT=1
+      - BITRATE=100
+      - IPERF_SERVER_IP="10.8.0.1"
+    network_mode: service:Masquerade
+    depends_on:
+      - Masquerade
+networks:
+  default:
+    name: masqNet
+    external: true
