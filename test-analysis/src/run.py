@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def analyze_tcp(tcp_tests: list[Iperf3DataTCP], base_path):
+def analyze_tcp(tcp_tests: list[Iperf3DataTCP], base_path, vpn):
     bps_target_bit_tcp_upload = []
     bps_target_bit_tcp_dwload = []
 
@@ -69,51 +69,51 @@ def analyze_tcp(tcp_tests: list[Iperf3DataTCP], base_path):
 
     target_vs_actual_plot(
         bps_target_bit_tcp_upload,
-        base_path + "actual_vs_target_bitrate_tcp_upload.png",
-        "TCP Upload Target Bitrate vs Actual Bitrate",
+        base_path + "actual_vs_target_bitrate_tcp_upload",
+        "TCP Upload Target Bitrate vs Actual Bitrate | " + vpn,
     )
 
     target_vs_actual_plot(
         bps_target_bit_tcp_dwload,
-        base_path + "actual_vs_target_bitrate_tcp_download.png",
-        "TCP Download Target Bitrate vs Actual Bitrate",
+        base_path + "actual_vs_target_bitrate_tcp_download",
+        "TCP Download Target Bitrate vs Actual Bitrate | " + vpn,
     )
     retransmit_plot(
         retrans_target_tcp_upload,
-        base_path + "retransmits_vs_bitrate_tcp_upload.png",
-        "TCP Upload Target Bitrate vs Retransmitted Packets",
+        base_path + "retransmits_vs_bitrate_tcp_upload",
+        "TCP Upload Target Bitrate vs Retransmitted Packets | " + vpn,
     )
     retransmit_plot(
         retrans_target_tcp_download,
-        base_path + "retransmits_vs_bitrate_tcp_download.png",
-        "TCP Download Target Bitrate vs Retransmitted Packets",
+        base_path + "retransmits_vs_bitrate_tcp_download",
+        "TCP Download Target Bitrate vs Retransmitted Packets | " + vpn,
     )
     rtt_vs_target(
         rtt_target_upload,
         base_path + "mean_rtt_vs_target_tcp_upload",
-        "TCP Upload RTT vs Target Bitrate"
+        "TCP Upload RTT vs Target Bitrate | " + vpn
     )
     rtt_vs_target(
         rtt_target_download,
         base_path + "mean_rtt_vs_target_tcp_download",
-        "TCP Download RTT vs Target Bitrate"
+        "TCP Download RTT vs Target Bitrate | " + vpn
     )
     
     # experiments
     target_vs_actual_plot_mult_dots(
         bps_target_bit_tcp_dwload,
-        base_path + "actual_vs_target_bitrate_tcp_download_mult.png",
-        "TCP Download Target Bitrate vs Actual Bitrate All Tests",
+        base_path + "actual_vs_target_bitrate_tcp_download_mult",
+        "TCP Download Target Bitrate vs Actual Bitrate All Tests | " + vpn,
     )
     
     target_vs_actual_plot_mult_dots(
         bps_target_bit_tcp_upload,
-        base_path + "actual_vs_target_bitrate_tcp_upload_mult.png",
-        "TCP Upload Target Bitrate vs Actual Bitrate All Tests",
+        base_path + "actual_vs_target_bitrate_tcp_upload_mult",
+        "TCP Upload Target Bitrate vs Actual Bitrate All Tests | " + vpn,
     )
 
 
-def analyze_udp(udp_tests: list[Iperf3DataUDP], base_path):
+def analyze_udp(udp_tests: list[Iperf3DataUDP], base_path, vpn):
     # 3 cases:
     #    1) Sender statistics
     #    2) Receiver statistics
@@ -177,38 +177,38 @@ def analyze_udp(udp_tests: list[Iperf3DataUDP], base_path):
 
     target_vs_actual_plot(
         bitrate_vs_target_upload,
-        base_path + "actual_vs_target_bitrate_udp_upload.png",
-        "UDP Upload Target Bitrate vs Actual Bitrate",
+        base_path + "actual_vs_target_bitrate_udp_upload",
+        "UDP Upload Target Bitrate vs Actual Bitrate | " + vpn,
     )
 
     target_vs_actual_plot(
         bitrate_vs_target_download,
-        base_path + "actual_vs_target_bitrate_udp_download.png",
-        "UDP Download Target Bitrate vs Actual Bitrate",
+        base_path + "actual_vs_target_bitrate_udp_download",
+        "UDP Download Target Bitrate vs Actual Bitrate | " + vpn,
     )
 
     jitter_plot(
         jitter_vs_target_upload,
-        base_path + "jitter_vs_target_bitrate_udp_upload.png",
-        "Jitter (ms) vs Target Bitrate Upload",
+        base_path + "jitter_vs_target_bitrate_udp_upload",
+        "Jitter (ms) vs Target Bitrate Upload | " + vpn,
     )
 
     jitter_plot(
         jitter_vs_target_download,
-        base_path + "jitter_vs_target_bitrate_udp_download.png",
-        "Jitter (ms) vs Target Bitrate Download",
+        base_path + "jitter_vs_target_bitrate_udp_download",
+        "Jitter (ms) vs Target Bitrate Download | " + vpn,
     )
 
     lost_packet_plot(
         lost_vs_target_upload,
         base_path + "lost_pck_vs_target_bitrate_udp_upload",
-        "Upload",
+        "Upload | " + vpn,
     )
 
     lost_packet_plot(
         lost_vs_target_download,
         base_path + "lost_pck_vs_target_bitrate_udp_download",
-        "Download",
+        "Download | " + vpn,
     )
 
 
@@ -270,9 +270,12 @@ def rtt_vs_target(data, name, title):
     mean_df_max_rtt = df.groupby("target", as_index=False)["max_rtt"].mean()
     mean_df_min_rtt = df.groupby("target", as_index=False)["min_rtt"].mean()
     
+    ax = plt.gca()
+    ax.set_ylim([0.0, 4.0])
+    
     plt.plot(mean_df_mean_rtt['target'], mean_df_mean_rtt['mean_rtt'], label='Mean RTT', color='blue', marker='.')
     plt.fill_between(mean_df_min_rtt['target'], mean_df_min_rtt['min_rtt'], mean_df_max_rtt['max_rtt'], color='gray', alpha=0.3, label='Min-Max Range')
-
+    
     plt.xlabel("Target Bitrate (Mbit/s)")
     plt.ylabel("Mean RTT (ms)")
     plt.title(title)
@@ -299,7 +302,8 @@ def target_vs_actual_plot(data, name, title):
     plt.grid(True)
     plt.tight_layout()
 
-    plt.savefig(name)
+    plt.savefig(name + ".png", dpi=300)
+    plt.savefig(name + ".svg")
     plt.close()
     
 def target_vs_actual_plot_mult_dots(data, name, title):
@@ -317,7 +321,8 @@ def target_vs_actual_plot_mult_dots(data, name, title):
     plt.grid(True)
     plt.tight_layout()
 
-    plt.savefig(name)
+    plt.savefig(name + ".png", dpi=300)
+    plt.savefig(name + ".svg")
     plt.close()
 
 
@@ -335,11 +340,12 @@ def jitter_plot(data, name, title):
     plt.grid(True)
     plt.tight_layout()
 
-    plt.savefig(name)
+    plt.savefig(name + ".png", dpi=300)
+    plt.savefig(name + ".svg")
     plt.close()
 
 
-def retransmit_plot(data, path, title):
+def retransmit_plot(data, name, title):
     plt.close()
     df = pd.DataFrame(data)
     mean_df = df.groupby("target", as_index=False)["retrans"].mean()
@@ -360,7 +366,8 @@ def retransmit_plot(data, path, title):
     plt.tight_layout()
 
     # Save the plot to a file
-    plt.savefig(path)
+    plt.savefig(name + ".png", dpi=300)
+    plt.savefig(name + ".svg")
     plt.close()
 
 
@@ -391,8 +398,8 @@ def main():
         else:
             print("Failed test: " + p)
 
-    analyze_udp(udp_tests, '../test-result-graphs/60s-1000mbit-50mbit/udp/')
-    analyze_tcp(tcp_tests, '../test-result-graphs/60s-1000mbit-50mbit/tcp/')
+    analyze_udp(udp_tests, '../test-result-graphs/masquerade/60s-1000mbit-50mbit/udp/', 'Masquerade')
+    analyze_tcp(tcp_tests, '../test-result-graphs/masquerade/60s-1000mbit-50mbit/tcp/', 'Masquerade')
 
 
 if __name__ == "__main__":
