@@ -31,6 +31,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Berlin
+      - PACKETLOSS_PERCENTAGE=1
     volumes:
       - ./client-config:/config:rw
     networks:
