@@ -22,80 +22,80 @@ echo "Running $num_tests tests, will be done in ${in_hours}h"
 # Run tests with different bitrates in succession
 
 # TCP UPLOAD
-for x in $(eval echo "{$START..$TESTS}")
-do
-    for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
-    do
-        echo "Testing $i M ($x / $TESTS)"
-
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD-PACKETLOSS" iperf3
-        docker-compose down --remove-orphans
-
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD-DELAY" iperf3
-        docker-compose down --remove-orphans
-
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="BANDWIDTH_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD-BANDWIDTH" iperf3
-        docker-compose down --remove-orphans
-    done
-    echo "Done ($x / $TESTS) for TCP UPLOAD"
-done
-
-# UDP UPLOAD
-for x in $(eval echo "{$START..$TESTS}")
-do
-    for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
-    do
-        echo "Testing $i M"
-
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-PACKETLOSS" iperf3
-        docker-compose down --remove-orphans
-
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-DELAY" iperf3
-        docker-compose down --remove-orphans
-
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="BANDWIDTH_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-BANDWIDTH" iperf3
-        docker-compose down --remove-orphans
-    done
-    echo "Done ($x / $TESTS) for UDP UPLOAD"
-done
-
-# TCP DOWNLOAD
-for x in $(eval echo "{$START..$TESTS}")
-do
-    for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
-    do
-        echo "Testing $i M"
-
-        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-DOWNLOAD-PACKETLOSS" iperf3
-        docker-compose down --remove-orphans
-
-        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-DOWNLOAD-DELAY" iperf3
-        docker-compose down --remove-orphans
-
-        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="BANDWIDTH_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-DOWNLOAD-BANDWIDTH" iperf3
-        docker-compose down --remove-orphans
-    done
-    echo "Done ($x / $TESTS) for TCP DOWNLOAD"
-done
-
-# UDP UPLOAD
-for x in $(eval echo "{$START..$TESTS}")
-do
-    for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
-    do
-        echo "Testing $i M"
-
-        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-DOWNLOAD-PACKETLOSS" iperf3
-        docker-compose down --remove-orphans
-
-        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-DOWNLOAD-DELAY" iperf3
-        docker-compose down --remove-orphans
-
-        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="BANDWIDTH_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-DOWNLOAD-BANDWIDTH" iperf3
-        docker-compose down --remove-orphans
-    done
-    echo "Done ($x / $TESTS) for UDP DOWNLOAD"
-done
+#for x in $(eval echo "{$START..$TESTS}")
+#do
+#    for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
+#    do
+#        echo "Testing $i M ($x / $TESTS)"
+#
+#        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD-PACKETLOSS" iperf3
+#        docker-compose down --remove-orphans
+#
+#        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD-DELAY" iperf3
+#        docker-compose down --remove-orphans
+#
+#        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="BANDWIDTH_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD-BANDWIDTH" iperf3
+#        docker-compose down --remove-orphans
+#    done
+#    echo "Done ($x / $TESTS) for TCP UPLOAD"
+#done
+#
+## UDP UPLOAD
+#for x in $(eval echo "{$START..$TESTS}")
+#do
+#    for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
+#    do
+#        echo "Testing $i M"
+#
+#        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-PACKETLOSS" iperf3
+#        docker-compose down --remove-orphans
+#
+#        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-DELAY" iperf3
+#        docker-compose down --remove-orphans
+#
+#        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="BANDWIDTH_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-BANDWIDTH" iperf3
+#        docker-compose down --remove-orphans
+#    done
+#    echo "Done ($x / $TESTS) for UDP UPLOAD"
+#done
+#
+## TCP DOWNLOAD
+#for x in $(eval echo "{$START..$TESTS}")
+#do
+#    for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
+#    do
+#        echo "Testing $i M"
+#
+#        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-DOWNLOAD-PACKETLOSS" iperf3
+#        docker-compose down --remove-orphans
+#
+#        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-DOWNLOAD-DELAY" iperf3
+#        docker-compose down --remove-orphans
+#
+#        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="BANDWIDTH_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-DOWNLOAD-BANDWIDTH" iperf3
+#        docker-compose down --remove-orphans
+#    done
+#    echo "Done ($x / $TESTS) for TCP DOWNLOAD"
+#done
+#
+## UDP UPLOAD
+#for x in $(eval echo "{$START..$TESTS}")
+#do
+#    for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
+#    do
+#        echo "Testing $i M"
+#
+#        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-DOWNLOAD-PACKETLOSS" iperf3
+#        docker-compose down --remove-orphans
+#
+#        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-DOWNLOAD-DELAY" iperf3
+#        docker-compose down --remove-orphans
+#
+#        docker compose run -e BITRATE="$i" -e PARALLEL="$PARALLEL" -e TESTCASE="BANDWIDTH_TEST_$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-DOWNLOAD-BANDWIDTH" iperf3
+#        docker-compose down --remove-orphans
+#    done
+#    echo "Done ($x / $TESTS) for UDP DOWNLOAD"
+#done
 
 #echo "TESTS DONE! SHUTTING DOWN IN 5 MINUTES!"
 #sleep 300
@@ -128,8 +128,8 @@ done
 #docker-compose down --remove-orphans
 #
 ## UDP UPLOAD
-#docker compose run -e BITRATE=50 -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-PACKETLOSS" iperf3
-#docker-compose down --remove-orphans
+docker compose run -e BITRATE=50 -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-PACKETLOSS" iperf3
+docker-compose down --remove-orphans
 #
 #docker compose run -e BITRATE=50 -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="DELAY_TEST" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD-DELAY" iperf3
 #docker-compose down --remove-orphans

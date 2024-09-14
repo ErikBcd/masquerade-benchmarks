@@ -5,6 +5,11 @@ json_path="/iperf/$BITRATE-P$PARALLEL-T70s-UDP-UPLOAD-PACKETLOSS-$TESTCASE-$time
 
 echo "UDP Upload test with changing packet loss | Bitrate: $BITRATE"
 
+echo "Setting Packetloss"
+tc qdisc replace dev eth0 root netem loss 1.5%
+sleep 10
+echo "Resetting packetloss"
+tc qdisc replace dev eth0 root netem loss 0.0%
 # UDP UPLOAD test with regularly changing delay
 
 iperf3 -c $IPERF_SERVER_IP --port 7070 -u -t 70 -b "$BITRATE"M -P "$PARALLEL" -O 2 --get-server-output --json --logfile "$json_path" &

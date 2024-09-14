@@ -32,4 +32,4 @@ thread_channel_max = 400
 
 # If you want qlog files to be created set this to true
 create_qlog_file = false
-qlog_file_path = "./qlog/"
+qlog_file_path = "./config/client-logs/"
