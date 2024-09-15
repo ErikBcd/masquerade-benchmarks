@@ -65,8 +65,14 @@ class Iperf3DataTCP:
         self.bps_received = 0.0
         self.bytes_received = 0
 
-        self.sender_intervals = []
-        self.receiver_intervals = []
+        #self.sender_intervals = []
+        #self.receiver_intervals = []
+        #self.relevant_intervals = []
+        self.download_streams = []
+        self.upload_streams = []
+        self.server_streams = []
+        self.client_streams = []
+        
     
     
     def parse(self, jsonfile: json):
@@ -103,20 +109,30 @@ class Iperf3DataTCP:
         self.bytes_received         = recv_stats['bytes']
  
         # Gather individual stream data
-        for j in jsonfile["intervals"]:
+        #for j in jsonfile["intervals"]:
+        #    s = Iperf3Stream()
+        #    s.parse(j)
+        #    if s.sender:
+        #        self.sender_intervals.append(s)
+        #    else:
+        #        self.receiver_intervals.append(s)
+        #for j in jsonfile["server_output_json"]["intervals"]:
+        #    s = Iperf3Stream()
+        #    s.parse(j)
+        #    if s.sender:
+        #        self.sender_intervals.append(s)
+        #    else:
+        #        self.receiver_intervals.append(s)
+            
+        for j in jsonfile['intervals']:
             s = Iperf3Stream()
             s.parse(j)
-            if s.sender:
-                self.sender_intervals.append(s)
-            else:
-                self.receiver_intervals.append(s)
+            self.client_streams.append(s)
+            
         for j in jsonfile["server_output_json"]["intervals"]:
             s = Iperf3Stream()
             s.parse(j)
-            if s.sender:
-                self.sender_intervals.append(s)
-            else:
-                self.receiver_intervals.append(s)
+            self.server_streams.append(s)
 
 class Iperf3DataUDP:
     def __init__(self):

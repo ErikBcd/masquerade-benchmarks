@@ -11,17 +11,21 @@ import matplotlib.pyplot as plt
 
 def main():
     masq_dir = path.normpath(
-        "../raw-test-results/60s-1000mbits-50mbitInterval-masquerade/"
+        "../raw-test-results/unreliability_tests/masquerade-70s-200mbits-50/"
     )
     wg_dir = path.normpath(
-        "../raw-test-results/60s-1000mbits-50mbitInterval-WireGuard/"
+        "../raw-test-results/unreliability_tests/wireguard-70s-200mbits-50/"
     )
 
     masq_results = [f for f in os.listdir(masq_dir) if isfile(join(masq_dir, f))]
     wg_results = [f for f in os.listdir(wg_dir) if isfile(join(wg_dir, f))]
 
-    udp_tests_masq = []
-    tcp_tests_masq = []
+    udp_tests_masq_pl = []
+    udp_tests_masq_bandwidth = []
+    udp_tests_masq_delay = []
+    tcp_tests_masq_pl = []
+    tcp_tests_masq_bandwidth = []
+    tcp_tests_masq_delay = []
     for f in masq_results:
         p = join(masq_dir, f)
         with open(p, "r") as fh:
@@ -33,16 +37,34 @@ def main():
             if "UDP" in f:
                 t = Iperf3DataUDP()
                 t.parse(jsondata)
-                udp_tests_masq.append(t)
+                if "PACKETLOSS" in f:
+                    udp_tests_masq_pl.append(t)
+                elif "BANDWIDTH" in f:
+                    udp_tests_masq_bandwidth.append(t)
+                elif "DELAY" in f:
+                    udp_tests_masq_delay.append(t)
+                else:
+                    print("UNKNOWN TESTTYPE")
             elif "TCP" in f:
                 t = Iperf3DataTCP()
                 t.parse(jsondata)
-                tcp_tests_masq.append(t)
+                if "PACKETLOSS" in f:
+                    tcp_tests_masq_pl.append(t)
+                elif "BANDWIDTH" in f:
+                    tcp_tests_masq_bandwidth.append(t)
+                elif "DELAY" in f:
+                    tcp_tests_masq_delay.append(t)
+                else:
+                    print("UNKNOWN TESTTYPE")
         else:
             print("Failed test: " + p)
 
-    udp_tests_wg = []
-    tcp_tests_wg = []
+    udp_tests_wg_pl = []
+    udp_tests_wg_bandwidth = []
+    udp_tests_wg_delay = []
+    tcp_tests_wg_pl = []
+    tcp_tests_wg_bandwidth = []
+    tcp_tests_wg_delay = []
     for f in wg_results:
         p = join(wg_dir, f)
         with open(p, "r") as fh:
@@ -54,14 +76,53 @@ def main():
             if "UDP" in f:
                 t = Iperf3DataUDP()
                 t.parse(jsondata)
-                udp_tests_wg.append(t)
+                if "PACKETLOSS" in f:
+                    udp_tests_wg_pl.append(t)
+                elif "BANDWIDTH" in f:
+                    udp_tests_wg_bandwidth.append(t)
+                elif "DELAY" in f:
+                    udp_tests_wg_delay.append(t)
+                else:
+                    print("UNKNOWN TESTTYPE")
             elif "TCP" in f:
                 t = Iperf3DataTCP()
                 t.parse(jsondata)
-                tcp_tests_wg.append(t)
+                if "PACKETLOSS" in f:
+                    tcp_tests_wg_pl.append(t)
+                elif "BANDWIDTH" in f:
+                    tcp_tests_wg_bandwidth.append(t)
+                elif "DELAY" in f:
+                    tcp_tests_wg_delay.append(t)
+                else:
+                    print("UNKNOWN TESTTYPE")
         else:
             print("Failed test: " + p)
-    analyze_tcp(tcp_tests_masq, tcp_tests_wg, '../test-result-graphs/joined_results/reliable_1000mbits_60s/tcp/')
+    
+    #udp_tests_wg = []
+    #tcp_tests_wg = []
+    #for f in wg_results:
+    #    p = join(wg_dir, f)
+    #    with open(p, "r") as fh:
+    #        file = fh.read()
+#
+    #    jsondata = json.loads(file)
+    #    #print("Parsing: " + p)
+    #    if "error" not in jsondata:
+    #        if "UDP" in f:
+    #            t = Iperf3DataUDP()
+    #            t.parse(jsondata)
+    #            udp_tests_wg.append(t)
+    #        elif "TCP" in f:
+    #            t = Iperf3DataTCP()
+    #            t.parse(jsondata)
+    #            tcp_tests_wg.append(t)
+    #    else:
+    #        print("Failed test: " + p)
+    
+    analyze_tcp(
+        tcp_tests_masq_pl, 
+        tcp_tests_wg_pl, 
+        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/tcp/packetloss/')
 
 def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3DataTCP], base_path):
     bps_upload_wg = []
@@ -176,25 +237,25 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
     )
     
     bps_over_time(
+        50, 
+        tcp_tests_masq, 
+        tcp_tests_wg, 
+        base_path)
+    
+    bps_over_time(
         100, 
         tcp_tests_masq, 
         tcp_tests_wg, 
         base_path)
     
     bps_over_time(
+        150, 
+        tcp_tests_masq, 
+        tcp_tests_wg, 
+        base_path)
+    
+    bps_over_time(
         200, 
-        tcp_tests_masq, 
-        tcp_tests_wg, 
-        base_path)
-    
-    bps_over_time(
-        900, 
-        tcp_tests_masq, 
-        tcp_tests_wg, 
-        base_path)
-    
-    bps_over_time(
-        1000, 
         tcp_tests_masq, 
         tcp_tests_wg, 
         base_path)
@@ -254,7 +315,7 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
     
     for t in tcp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
-            if t.is_upload:
+            if not t.is_upload:
                 for s in t.server_streams:
                     if s.omitted or math.trunc(s.seconds) != 1:
                         continue
@@ -276,33 +337,37 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
     
     for t in tcp_tests_wg: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
-            if t.is_upload:
+            if not t.is_upload:
+                i = 0
                 for s in t.server_streams:
                     if s.omitted or math.trunc(s.seconds) != 1:
                         continue
                     bps_upload_wg.append({
-                        "timestamp": math.trunc(s.start),
+                        "timestamp": i,
                         "bps": s.bps / 1000000
                     })
+                    i += 1
             else:
+                i = 0
                 for s in t.client_streams: # Download tests: Client measures bps
                     if s.omitted or math.trunc(s.seconds) != 1:
                         continue
                     bps_download_wg.append({
-                        "timestamp": math.trunc(s.start),
+                        "timestamp": i,
                         "bps": s.bps / 1000000
                     })
+                    i += 1
     bps_over_time_plt(
         bps_download_wg, 
         bps_download_masq, 
         base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target",
         "TCP Download bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s",
         target_bps,
-        [0, 10, 20, 30, 40, 50, 60],
-        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0],
+        [0, 10, 20, 30, 40, 50, 60, 70],
+        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
         2.0,
-        "Fake Packet Loss (%)",
-        "Fake Packet Loss"
+        "Packet Loss (%)",
+        "Packet Loss"
     )
     
 def bps_over_time_plt(
@@ -324,13 +389,19 @@ def bps_over_time_plt(
     mean_df_wg = df_wg.groupby("timestamp", as_index=False)["bps"].mean()
     df_masq = pd.DataFrame(data_masq)
     mean_df_masq = df_masq.groupby("timestamp", as_index=False)["bps"].mean()
+    if mean_df_masq['bps'].max() > mean_df_wg['bps'].max():
+        max_bps = mean_df_masq['bps'].max()
+    else:
+        max_bps = mean_df_wg['bps'].max()
+        
+    print("Masquerade data:\n" + df_masq.to_string())
     
     ax = plt.gca()
-    ax.set_ylim([0.0, target + 10])
+    ax.set_ylim([0.0, max_bps + 10])
     
     fig, ax1 = plt.subplots()
     
-    ax1.set_ylim([0.0, target + 10])
+    ax1.set_ylim([0.0, max_bps + 10])
 
     ax1.plot(mean_df_masq["timestamp"], mean_df_masq["bps"], linestyle="-", label = "Masquerade", color = 'b')
     ax1.plot(mean_df_wg["timestamp"], mean_df_wg["bps"], linestyle="-", label = "WireGuard", color = 'r')
