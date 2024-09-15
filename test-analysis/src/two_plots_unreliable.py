@@ -98,33 +98,45 @@ def main():
         else:
             print("Failed test: " + p)
     
-    #udp_tests_wg = []
-    #tcp_tests_wg = []
-    #for f in wg_results:
-    #    p = join(wg_dir, f)
-    #    with open(p, "r") as fh:
-    #        file = fh.read()
-#
-    #    jsondata = json.loads(file)
-    #    #print("Parsing: " + p)
-    #    if "error" not in jsondata:
-    #        if "UDP" in f:
-    #            t = Iperf3DataUDP()
-    #            t.parse(jsondata)
-    #            udp_tests_wg.append(t)
-    #        elif "TCP" in f:
-    #            t = Iperf3DataTCP()
-    #            t.parse(jsondata)
-    #            tcp_tests_wg.append(t)
-    #    else:
-    #        print("Failed test: " + p)
-    
     analyze_tcp(
         tcp_tests_masq_pl, 
         tcp_tests_wg_pl, 
-        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/tcp/packetloss/')
+        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/tcp/packetloss/',
+        [0, 10, 20, 30, 40, 50, 60, 70],
+        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+        "packetloss",
+        "Packet Loss (%)",
+        "Packet Loss")
+    
+    analyze_tcp(
+        tcp_tests_masq_delay, 
+        tcp_tests_wg_delay, 
+        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/tcp/delay/',
+        [0, 10, 20, 30, 40, 50, 60, 70],
+        [0, 10, 20, 50, 20, 10, 0, 0],
+        "delay",
+        "Latency (ms)",
+        "Latency")
+    
+    analyze_tcp(
+        tcp_tests_masq_bandwidth, 
+        tcp_tests_wg_bandwidth, 
+        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/tcp/bandwidth/',
+        [10, 20, 30, 40, 50],
+        [50, 30, 10, 30, 50],
+        "bandwidth",
+        "Bandwidth Limit (mbit/s)",
+        "Bandwidth Limit")
 
-def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3DataTCP], base_path):
+def analyze_tcp(
+    tcp_tests_masq: list[Iperf3DataTCP], 
+    tcp_tests_wg: list[Iperf3DataTCP], 
+    base_path,
+    condition_times,
+    condition_values,
+    condition_name,
+    condition_axis_label,
+    condition_legend_label):
     bps_upload_wg = []
     bps_upload_masq = []
     bps_dwload_wg = []
@@ -211,54 +223,74 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
     retransmit_plot(
         retrans_upload_wg,
         retrans_upload_masq,
-        base_path + "retransmits_vs_bitrate_tcp_upload",
-        "TCP Upload Target Bitrate vs Retransmitted Packets",
+        base_path + "retransmits_vs_bitrate_tcp_upload_" + condition_name,
+        "TCP Upload Target Bitrate vs Retransmitted Packets with " + condition_legend_label,
     )
 
     retransmit_plot(
         retrans_dwload_wg,
         retrans_dwload_masq,
-        base_path + "retransmits_vs_bitrate_tcp_download",
-        "TCP Download Target Bitrate vs Retransmitted Packets",
+        base_path + "retransmits_vs_bitrate_tcp_download_" + condition_name,
+        "TCP Download Target Bitrate vs Retransmitted Packets with " + condition_legend_label,
     )
 
     target_vs_actual_plot(
         bps_upload_wg,
         bps_upload_masq,
-        base_path + "bps_vs_target_tcp_upload",
-        "TCP Upload Target Bitrate vs Measured Bitrate"
+        base_path + "bps_vs_target_tcp_upload_" + condition_name,
+        "TCP Upload Target Bitrate vs Measured Bitrate with " + condition_legend_label,
     )
 
     target_vs_actual_plot(
         bps_dwload_wg,
         bps_dwload_masq,
-        base_path + "bps_vs_target_tcp_download",
-        "TCP Download Target Bitrate vs Measured Bitrate"
+        base_path + "bps_vs_target_tcp_download_" + condition_name,
+        "TCP Download Target Bitrate vs Measured Bitrate with " + condition_legend_label,
     )
     
     bps_over_time(
         50, 
         tcp_tests_masq, 
         tcp_tests_wg, 
-        base_path)
+        base_path,
+        condition_times,
+        condition_values,
+        condition_name,
+        condition_axis_label,
+        condition_legend_label)
     
     bps_over_time(
         100, 
         tcp_tests_masq, 
         tcp_tests_wg, 
-        base_path)
+        base_path,
+        condition_times,
+        condition_values,
+        condition_name,
+        condition_axis_label,
+        condition_legend_label)
     
     bps_over_time(
         150, 
         tcp_tests_masq, 
         tcp_tests_wg, 
-        base_path)
+        base_path,
+        condition_times,
+        condition_values,
+        condition_name,
+        condition_axis_label,
+        condition_legend_label)
     
     bps_over_time(
         200, 
         tcp_tests_masq, 
         tcp_tests_wg, 
-        base_path)
+        base_path,
+        condition_times,
+        condition_values,
+        condition_name,
+        condition_axis_label,
+        condition_legend_label)
 
 def retransmit_plot(data_wg, data_masq, path, title):
     plt.close()
@@ -308,7 +340,16 @@ def target_vs_actual_plot(data_wg, data_masq, name, title):
     plt.close()
 
 # Shows how the bps developed over time
-def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3DataTCP], base_path):
+def bps_over_time(
+    target_bps, 
+    tcp_tests_masq: list[Iperf3DataTCP], 
+    tcp_tests_wg: list[Iperf3DataTCP], 
+    base_path,
+    condition_times,
+    condition_values,
+    condition_name,
+    condition_axis_label,
+    condition_legend_label):
     # First create dataframe which will contain timestamps and bps measurements    
     bps_download_masq = []
     bps_upload_masq = []
@@ -316,8 +357,8 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
     for t in tcp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if not t.is_upload:
-                for s in t.server_streams:
-                    if s.omitted or math.trunc(s.seconds) != 1:
+                for s in t.client_streams:
+                    if s.omitted:
                         continue
                     bps_upload_masq.append({
                         "timestamp": math.trunc(s.start),
@@ -325,7 +366,7 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
                     })
             else:
                 for s in t.client_streams: # Download tests: Client measures bps
-                    if s.omitted or math.trunc(s.seconds) != 1:
+                    if s.omitted:
                         continue
                     bps_download_masq.append({
                         "timestamp": math.trunc(s.start),
@@ -339,8 +380,8 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
         if t.target_bps == target_bps * 1000000:
             if not t.is_upload:
                 i = 0
-                for s in t.server_streams:
-                    if s.omitted or math.trunc(s.seconds) != 1:
+                for s in t.client_streams:
+                    if s.omitted:
                         continue
                     bps_upload_wg.append({
                         "timestamp": i,
@@ -350,7 +391,7 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
             else:
                 i = 0
                 for s in t.client_streams: # Download tests: Client measures bps
-                    if s.omitted or math.trunc(s.seconds) != 1:
+                    if s.omitted:
                         continue
                     bps_download_wg.append({
                         "timestamp": i,
@@ -360,25 +401,32 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
     bps_over_time_plt(
         bps_download_wg, 
         bps_download_masq, 
-        base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target",
-        "TCP Download bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s",
-        target_bps,
-        [0, 10, 20, 30, 40, 50, 60, 70],
-        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
-        2.0,
-        "Packet Loss (%)",
-        "Packet Loss"
+        base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
+        "TCP Download bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
+    )
+    
+    bps_over_time_plt(
+        bps_upload_wg, 
+        bps_upload_masq, 
+        base_path + "bps_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
+        "TCP Upload bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
     )
     
 def bps_over_time_plt(
     data_wg, 
     data_masq, 
     path, 
-    title, 
-    target, 
+    title,
     condition_time, 
     condition_val, 
-    max_cond_val,
     cond_axis_title, 
     cond_legend):
     
@@ -394,7 +442,7 @@ def bps_over_time_plt(
     else:
         max_bps = mean_df_wg['bps'].max()
         
-    print("Masquerade data:\n" + df_masq.to_string())
+    #print("Masquerade data:\n" + df_masq.to_string())
     
     ax = plt.gca()
     ax.set_ylim([0.0, max_bps + 10])
@@ -405,19 +453,96 @@ def bps_over_time_plt(
 
     ax1.plot(mean_df_masq["timestamp"], mean_df_masq["bps"], linestyle="-", label = "Masquerade", color = 'b')
     ax1.plot(mean_df_wg["timestamp"], mean_df_wg["bps"], linestyle="-", label = "WireGuard", color = 'r')
-    
-    ax2 = ax1.twinx()
-    ax2.set_ylim([0.0, max_cond_val])
-    ax2.step(condition_time, condition_val, where='post', label=cond_legend, color='orange', linestyle='-', marker='o')
-    ax2.set_ylabel(cond_axis_title, color='orange')
-    ax2.tick_params(axis='y', labelcolor='orange')
+    if "Bandwidth" not in cond_legend:
+        ax2 = ax1.twinx()
+        ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
+        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color='orange', linestyle='-', marker='o')
+        ax2.set_ylabel(cond_axis_title, color='orange')
+        ax2.tick_params(axis='y', labelcolor='orange')
+        lines_2, labels_2 = ax2.get_legend_handles_labels()
+    else:
+        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color='orange', linestyle='-', marker='o')
+
     
     lines_1, labels_1 = ax1.get_legend_handles_labels()
-    lines_2, labels_2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center')
+    
+    if "Bandwidth" in cond_legend:
+        ax1.legend(lines_1, labels_1, loc='upper center')
+    elif "Latency" in cond_legend:
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper center')
+    else:
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center')
     
     ax1.set_xlabel("Timestamp (s)")
     ax1.set_ylabel("Bitrate (mbit/s)")
+    plt.title(title)
+
+    #plt.legend()
+
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Save the plot to a file
+    print("Saving plot as " + path + ".png")
+    plt.savefig(path + ".png", dpi=300)
+    plt.savefig(path + ".svg")
+    plt.close()
+    
+def retransmits_over_time_plt(
+    data_wg, 
+    data_masq, 
+    path, 
+    title,
+    condition_time, 
+    condition_val, 
+    cond_axis_title, 
+    cond_legend):
+    
+    plt.close()
+    df_wg = pd.DataFrame(data_wg)
+    
+    #print("wg data: \n" + df_wg)
+    mean_df_wg = df_wg.groupby("timestamp", as_index=False)["retransmits"].mean()
+    df_masq = pd.DataFrame(data_masq)
+    mean_df_masq = df_masq.groupby("timestamp", as_index=False)["retransmits"].mean()
+    if mean_df_masq['retransmits'].max() > mean_df_wg['retransmits'].max():
+        max_retransmits = mean_df_masq['retransmits'].max()
+    else:
+        max_retransmits = mean_df_wg['retransmits'].max()
+        
+    #print("Masquerade data:\n" + df_masq.to_string())
+    
+    ax = plt.gca()
+    ax.set_ylim([0.0, max_retransmits + 10])
+    
+    fig, ax1 = plt.subplots()
+    
+    ax1.set_ylim([0.0, max_retransmits + 10])
+
+    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["retransmits"], linestyle="-", label = "Masquerade", color = 'b')
+    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["retransmits"], linestyle="-", label = "WireGuard", color = 'r')
+    if "Bandwidth" not in cond_legend:
+        ax2 = ax1.twinx()
+        ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
+        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color='orange', linestyle='-', marker='o')
+        ax2.set_ylabel(cond_axis_title, color='orange')
+        ax2.tick_params(axis='y', labelcolor='orange')
+        lines_2, labels_2 = ax2.get_legend_handles_labels()
+    else:
+        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color='orange', linestyle='-', marker='o')
+
+    
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    
+    if "Bandwidth" in cond_legend:
+        ax1.legend(lines_1, labels_1, loc='upper center')
+    elif "Latency" in cond_legend:
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper center')
+    else:
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center')
+    
+    ax1.set_xlabel("Timestamp (s)")
+    ax1.set_ylabel("Retransmitted Packets")
     plt.title(title)
 
     #plt.legend()
