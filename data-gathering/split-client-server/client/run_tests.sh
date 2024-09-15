@@ -5,9 +5,9 @@ TESTS=5
 TEST_TIME=60 
 PARALLEL=1
 
-BITRATE_START=50
-BITRATE_STEP=50
-BITRATE_END=1000
+BITRATE_START=20
+BITRATE_STEP=20
+BITRATE_END=400
 
 SERVER_IP="10.8.0.1"
 
@@ -24,7 +24,7 @@ echo "Running $num_tests tests, will be done in ${in_hours}h"
 # test TCP and UDP
 echo "TCP TEST"
 
-docker compose run -e BITRATE="500" -e TESTTIME="60" -e PARALLEL="1" -e TESTCASE="INITIAL_TEST" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT=1 iperf3
+docker compose run -e BITRATE="500" -e TESTTIME="10" -e PARALLEL="1" -e TESTCASE="INITIAL_TEST" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT=1 iperf3
 docker-compose down --remove-orphans
 
 sleep 5
@@ -87,4 +87,4 @@ done
 echo "TESTS DONE! SHUTTING DOWN IN 5 MINUTES!"
 sleep 300
 
-#shutdown now
+shutdown now

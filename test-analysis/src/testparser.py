@@ -1,5 +1,45 @@
 import json
 
+class Iperf3Stream:
+    def __init__(self):
+        self.omitted = True
+        self.sender = False
+        self.seconds = 0.0
+        self.start = 0.0
+        self.end = 0.0
+        self.bps = 0.0
+        self.bytes = 0
+        
+        # Only exist if sender = true
+        self.retransmits = 0
+        
+        self.snd_cwnd = 0
+        #self.snd_wnd = 0
+
+        self.rtt = 0
+        self.rttvar = 0
+        self.pmtu = 0
+
+    def parse(self, jsonfile: json):
+        self.sender = jsonfile["sum"]["sender"]
+        self.omitted = jsonfile["sum"]["omitted"]
+        self.seconds = jsonfile["sum"]["seconds"]
+        self.start = jsonfile["sum"]["start"]
+        self.bps = jsonfile["sum"]["bits_per_second"]
+        self.bytes = jsonfile["sum"]["bytes"]
+        self.end = jsonfile["sum"]["end"]
+
+        # Sender statistics
+        if self.sender:
+            self.retransmits = jsonfile["sum"]["retransmits"]
+
+            self.snd_cwnd = jsonfile["streams"][0]["snd_cwnd"]
+            #self.snd_wnd = jsonfile["streams"][0]["snd_wnd"]
+
+            self.rtt = jsonfile["streams"][0]["rtt"]
+            self.rttvar = jsonfile["streams"][0]["rttvar"]
+            self.pmtu = jsonfile["streams"][0]["pmtu"]
+
 class Iperf3DataTCP:
     def __init__(self):
         # True = Uploadtest, False = Downloadtest
@@ -24,6 +64,9 @@ class Iperf3DataTCP:
         # Receiver statistics
         self.bps_received = 0.0
         self.bytes_received = 0
+
+        self.sender_intervals = []
+        self.receiver_intervals = []
     
     
     def parse(self, jsonfile: json):
@@ -59,6 +102,22 @@ class Iperf3DataTCP:
         self.bps_received           = recv_stats['bits_per_second']
         self.bytes_received         = recv_stats['bytes']
  
+        # Gather individual stream data
+        for j in jsonfile["intervals"]:
+            s = Iperf3Stream()
+            s.parse(j)
+            if s.sender:
+                self.sender_intervals.append(s)
+            else:
+                self.receiver_intervals.append(s)
+        for j in jsonfile["server_output_json"]["intervals"]:
+            s = Iperf3Stream()
+            s.parse(j)
+            if s.sender:
+                self.sender_intervals.append(s)
+            else:
+                self.receiver_intervals.append(s)
+
 class Iperf3DataUDP:
     def __init__(self):
         self.is_upload = False
