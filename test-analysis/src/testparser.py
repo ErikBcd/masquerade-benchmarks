@@ -1,44 +1,31 @@
 import json
 
-class Iperf3Stream:
+class TCPStreamData:
     def __init__(self):
-        self.omitted = True
-        self.sender = False
         self.seconds = 0.0
         self.start = 0.0
         self.end = 0.0
-        self.bps = 0.0
-        self.bytes = 0
         
-        # Only exist if sender = true
+        self.bps_received = 0.0
+        
         self.retransmits = 0
-        
         self.snd_cwnd = 0
-        #self.snd_wnd = 0
-
         self.rtt = 0
         self.rttvar = 0
         self.pmtu = 0
-
-    def parse(self, jsonfile: json):
-        self.sender = jsonfile["sum"]["sender"]
-        self.omitted = jsonfile["sum"]["omitted"]
-        self.seconds = jsonfile["sum"]["seconds"]
-        self.start = jsonfile["sum"]["start"]
-        self.bps = jsonfile["sum"]["bits_per_second"]
-        self.bytes = jsonfile["sum"]["bytes"]
-        self.end = jsonfile["sum"]["end"]
-
-        # Sender statistics
-        if self.sender:
-            self.retransmits = jsonfile["sum"]["retransmits"]
-
-            self.snd_cwnd = jsonfile["streams"][0]["snd_cwnd"]
-            #self.snd_wnd = jsonfile["streams"][0]["snd_wnd"]
-
-            self.rtt = jsonfile["streams"][0]["rtt"]
-            self.rttvar = jsonfile["streams"][0]["rttvar"]
-            self.pmtu = jsonfile["streams"][0]["pmtu"]
+    
+    def parse(self, sender, receiver):
+        self.bps_received = receiver['sum']['bits_per_second']
+        self.seconds = receiver['sum']['seconds']
+        self.start = receiver['sum']['start']
+        self.end = receiver['sum']['end']
+        
+        self.retransmits    = sender['sum']['retransmits']
+        self.snd_cwnd       = sender['streams'][0]['snd_cwnd']
+        self.rtt            = sender['streams'][0]['rtt']
+        self.rttvar         = sender['streams'][0]['rttvar']
+        self.pmtu           = sender['streams'][0]['pmtu']
+        
 
 class Iperf3DataTCP:
     def __init__(self):
@@ -53,30 +40,18 @@ class Iperf3DataTCP:
         self.num_streams = 0
         
         # Sender statistics
-        self.bps = 0.0
+        
+        self.bps_received = 0.0
         self.retransmits = 0
-        self.bytes = 0
         self.max_snd_cwnd = 0
         self.max_rtt = 0
         self.min_rtt = 0
         self.mean_rtt = 0
-        
-        # Receiver statistics
-        self.bps_received = 0.0
-        self.bytes_received = 0
 
-        #self.sender_intervals = []
-        #self.receiver_intervals = []
-        #self.relevant_intervals = []
-        self.download_streams = []
-        self.upload_streams = []
-        self.server_streams = []
-        self.client_streams = []
-        
-    
-    
+        self.intervals = []
+
     def parse(self, jsonfile: json):
-        self.is_upload          = jsonfile['end']['streams'][0]['sender']['sender']
+        self.is_upload          = jsonfile['end']['sum_sent']['sender']
         
         # Some generic test info
         self.target_bps         = jsonfile['start']['target_bitrate']
@@ -85,55 +60,59 @@ class Iperf3DataTCP:
         self.interval           = jsonfile['start']['test_start']['interval']
         self.cookie             = jsonfile['start']['cookie']
         
-        # Sender statistics. Depend on wether test is upload- or download test
-        # TODO: This only works for one stream! If the iperf3 test had multiple streams
-        #       the others will be ignored. This should be fixed in the future.
+        self.bps_received       = jsonfile['end']['sum_received']['bits_per_second']
+        self.retransmits        = jsonfile['end']['sum_sent']['retransmits']
+        
+        # Only the sender side has these statistics
         if self.is_upload:
-            send_stats = jsonfile['end']['streams'][0]['sender']
+            self.max_snd_cwnd   = jsonfile['end']['streams'][0]['sender']['max_snd_cwnd']
+            self.max_rtt        = jsonfile['end']['streams'][0]['sender']['max_rtt']
+            self.min_rtt        = jsonfile['end']['streams'][0]['sender']['min_rtt']
+            self.mean_rtt       = jsonfile['end']['streams'][0]['sender']['mean_rtt']
         else:
-            send_stats = jsonfile['server_output_json']['end']['streams'][0]['sender']
-            
-        self.bps            = send_stats['bits_per_second']
-        self.retransmits    = send_stats['retransmits']
-        self.max_snd_cwnd   = send_stats['max_snd_cwnd']
-        self.max_rtt        = send_stats['max_rtt']
-        self.min_rtt        = send_stats['min_rtt']
-        self.mean_rtt       = send_stats['mean_rtt']
+            self.max_snd_cwnd   = jsonfile['server_output_json']['end']['streams'][0]['sender']['max_snd_cwnd']
+            self.max_rtt        = jsonfile['server_output_json']['end']['streams'][0]['sender']['max_rtt']
+            self.min_rtt        = jsonfile['server_output_json']['end']['streams'][0]['sender']['min_rtt']
+            self.mean_rtt       = jsonfile['server_output_json']['end']['streams'][0]['sender']['mean_rtt']
         
-        if not self.is_upload:
-            recv_stats = jsonfile['end']['streams'][0]['receiver']
-        else:
-            recv_stats = jsonfile['server_output_json']['end']['streams'][0]['receiver']
+        # Parse individual intervals
+        server_intervals = len(jsonfile["server_output_json"]["intervals"])
+        client_intervals = len(jsonfile['intervals'])
+        if client_intervals != server_intervals:
+            print("WARNING: Intervals mismatch! Client len: " + str(client_intervals) + " Server len: " + str(server_intervals))
         
-        self.bps_received           = recv_stats['bits_per_second']
-        self.bytes_received         = recv_stats['bytes']
- 
-        # Gather individual stream data
-        #for j in jsonfile["intervals"]:
-        #    s = Iperf3Stream()
-        #    s.parse(j)
-        #    if s.sender:
-        #        self.sender_intervals.append(s)
-        #    else:
-        #        self.receiver_intervals.append(s)
-        #for j in jsonfile["server_output_json"]["intervals"]:
-        #    s = Iperf3Stream()
-        #    s.parse(j)
-        #    if s.sender:
-        #        self.sender_intervals.append(s)
-        #    else:
-        #        self.receiver_intervals.append(s)
-            
-        for j in jsonfile['intervals']:
-            s = Iperf3Stream()
-            s.parse(j)
-            self.client_streams.append(s)
-            
-        for j in jsonfile["server_output_json"]["intervals"]:
-            s = Iperf3Stream()
-            s.parse(j)
-            self.server_streams.append(s)
-
+        interval_num = min(len(jsonfile['intervals']), len(jsonfile["server_output_json"]["intervals"]))
+        
+        for i in range(2, interval_num):
+            s = TCPStreamData()
+            if self.is_upload:
+                s.parse(sender=jsonfile['intervals'][i], receiver=jsonfile["server_output_json"]["intervals"][i])
+            else:
+                s.parse(sender=jsonfile["server_output_json"]["intervals"][i], receiver=jsonfile['intervals'][i])
+            self.intervals.append(s)
+        
+class UDPStreamData:
+    def __init__(self):
+        self.seconds = 0.0
+        self.start = 0.0
+        self.end = 0.0
+        
+        self.bps_received = 0
+        
+        self.lost_packets = 0
+        self.lost_percent = 0.0
+        self.jitter_ms = 0.0
+        
+    def parse(self, receiver):
+        self.bps_received   = receiver['sum']['bits_per_second']
+        self.seconds        = receiver['sum']['seconds']
+        self.start          = receiver['sum']['start']
+        self.end            = receiver['sum']['end']
+        
+        self.lost_packets   = receiver['sum']['lost_packets']
+        self.lost_percent   = receiver['sum']['lost_percent']
+        self.jitter_ms      = receiver['sum']['jitter_ms']
+        
 class Iperf3DataUDP:
     def __init__(self):
         self.is_upload = False
@@ -145,13 +124,14 @@ class Iperf3DataUDP:
         self.cookie = ""
         self.num_streams = 0
         
-        self.jitter_ms = 0.0
-        self.bps = 0.0
-        self.bytes = 0
-        self.packets = 0
-        self.lost_percent = 0.0
+        self.received_bps = 0
+        
+        # Upload only stats
         self.lost_packets = 0
-        self.out_of_order = 0
+        self.lost_percent = 0.0
+        self.jitter_ms = 0.0
+        
+        self.intervals = []
         
     def parse(self, jsonfile: json):
         #print(jsonfile['end']['streams'][0]['udp'])
@@ -164,27 +144,22 @@ class Iperf3DataUDP:
         self.interval           = jsonfile['start']['test_start']['interval']
         self.cookie             = jsonfile['start']['cookie']
         
-        # Sender statistics. Depend on wether test is upload- or download test
-        # TODO: This only works for one stream! If the iperf3 test had multiple streams
-        #       the others will be ignored. This should be fixed in the future.
+        self.received_bps = jsonfile['end']['sum_received']['bits_per_second']
+        
         if self.is_upload:
-            send_stats = jsonfile['end']['streams'][0]['udp']
-        else:
-            send_stats = jsonfile['server_output_json']['end']['streams'][0]['udp']
-            
-        self.bps            = send_stats['bits_per_second']
-        # Jitter is always in the same place
-        self.jitter_ms      = jsonfile['end']['streams'][0]['udp']['jitter_ms']
-        self.bytes          = send_stats['bytes']
-        self.packets        = send_stats['packets']
-        self.lost_percent   = send_stats['lost_percent']
-        self.lost_packets   = send_stats['lost_packets']
-        self.out_of_order   = send_stats['out_of_order']
+            self.lost_packets = jsonfile['end']['sum_received']['lost_packets']
+            self.lost_percent = jsonfile['end']['sum_received']['lost_percent']
+        self.jitter_ms = jsonfile['end']['sum_received']['jitter_ms']
         
         if not self.is_upload:
-            recv_stats = jsonfile['end']['streams'][0]['udp']
+            ivals = jsonfile['intervals']
         else:
-            recv_stats = jsonfile['server_output_json']['end']['streams'][0]['udp']
+            ivals = jsonfile["server_output_json"]["intervals"]
         
-        self.bps_received           = recv_stats['bits_per_second']
-        self.bytes_received         = recv_stats['bytes']
+        for i in range(2, len(ivals)):
+            s = UDPStreamData()
+            s.parse(ivals[i])
+            self.intervals.append(s)
+            
+        
+            
