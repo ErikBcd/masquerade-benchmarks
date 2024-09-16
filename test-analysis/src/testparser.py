@@ -78,10 +78,10 @@ class Iperf3DataTCP:
         # Parse individual intervals
         server_intervals = len(jsonfile["server_output_json"]["intervals"])
         client_intervals = len(jsonfile['intervals'])
-        if client_intervals != server_intervals:
-            print("WARNING: Intervals mismatch! Client len: " + str(client_intervals) + " Server len: " + str(server_intervals))
+        #if client_intervals != server_intervals:
+        #    print("WARNING: Intervals mismatch! Client len: " + str(client_intervals) + " Server len: " + str(server_intervals))
         
-        interval_num = min(len(jsonfile['intervals']), len(jsonfile["server_output_json"]["intervals"]))
+        interval_num = min(server_intervals, client_intervals)
         
         for i in range(2, interval_num):
             s = TCPStreamData()
