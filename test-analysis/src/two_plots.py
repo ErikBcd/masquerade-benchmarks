@@ -28,7 +28,7 @@ def main():
             file = fh.read()
 
         jsondata = json.loads(file)
-        #print("Parsing: " + p)
+        print("Parsing: " + p)
         if "error" not in jsondata:
             if "UDP" in f:
                 t = Iperf3DataUDP()
@@ -49,7 +49,7 @@ def main():
             file = fh.read()
 
         jsondata = json.loads(file)
-        #print("Parsing: " + p)
+        print("Parsing: " + p)
         if "error" not in jsondata:
             if "UDP" in f:
                 t = Iperf3DataUDP()
@@ -61,7 +61,9 @@ def main():
                 tcp_tests_wg.append(t)
         else:
             print("Failed test: " + p)
+            
     analyze_tcp(tcp_tests_masq, tcp_tests_wg, '../test-result-graphs/joined_results/reliable_1000mbits_60s/tcp/')
+    analyze_udp(udp_tests_masq, udp_tests_wg, '../test-result-graphs/joined_results/reliable_1000mbits_60s/udp/')
 
 def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3DataTCP], base_path):
     bps_upload_wg = []
@@ -80,6 +82,8 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
     rtt_dwload_masq = []
 
     for t in tcp_tests_wg:
+        if (t.target_bps / 1000000) >= 950:
+            continue
         if t.is_upload:
             retrans_upload_wg.append({
                 "target": t.target_bps / 1000000,
@@ -87,7 +91,6 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
             })
             bps_upload_wg.append({
                 "target": t.target_bps / 1000000,
-                "actual": t.bps / 1000000,
                 "received": t.bps_received / 1000000,
             })
             rtt_upload_wg.append({
@@ -103,7 +106,6 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
             })
             bps_dwload_wg.append({
                 "target": t.target_bps / 1000000,
-                "actual": t.bps / 1000000,
                 "received": t.bps_received / 1000000,
             })
             rtt_dwload_wg.append({
@@ -114,6 +116,8 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
             })
 
     for t in tcp_tests_masq:
+        if (t.target_bps / 1000000) >= 950:
+            continue
         if t.is_upload:
             retrans_upload_masq.append({
                 "target": t.target_bps / 1000000,
@@ -121,7 +125,6 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
             })
             bps_upload_masq.append({
                 "target": t.target_bps / 1000000,
-                "actual": t.bps / 1000000,
                 "received": t.bps_received / 1000000,
             })
             rtt_upload_masq.append({
@@ -137,7 +140,6 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
             })
             bps_dwload_masq.append({
                 "target": t.target_bps / 1000000,
-                "actual": t.bps / 1000000,
                 "received": t.bps_received / 1000000,
             })
             rtt_dwload_masq.append({
@@ -175,29 +177,214 @@ def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3Da
         "TCP Download Target Bitrate vs Measured Bitrate"
     )
     
-    bps_over_time(
+    target_vs_rtt_plot(
+        rtt_upload_wg,
+        rtt_upload_masq,
+        base_path + "rtt_vs_target_tcp_upload",
+        "TCP Upload Target Bitrate vs RTT"
+    )
+    
+    target_vs_rtt_plot(
+        rtt_dwload_wg,
+        rtt_dwload_masq,
+        base_path + "rtt_vs_target_tcp_download",
+        "TCP Download Target Bitrate vs RTT"
+    )
+    
+    interval_plots_time(
         100, 
         tcp_tests_masq, 
         tcp_tests_wg, 
         base_path)
     
-    bps_over_time(
+    interval_plots_time(
         200, 
         tcp_tests_masq, 
         tcp_tests_wg, 
         base_path)
     
-    bps_over_time(
+    interval_plots_time(
         900, 
         tcp_tests_masq, 
         tcp_tests_wg, 
         base_path)
+
+def analyze_udp(udp_tests_masq: list[Iperf3DataUDP], udp_tests_wg: list[Iperf3DataUDP], base_path):
+    masq_bitrate_vs_target_upload = []
+    masq_bitrate_vs_target_download = []
+    masq_lost_vs_target_upload = []
     
-    bps_over_time(
-        1000, 
-        tcp_tests_masq, 
-        tcp_tests_wg, 
-        base_path)
+    masq_jitter_vs_target_upload = []
+    masq_jitter_vs_target_download = []
+    
+    wg_bitrate_vs_target_upload = []
+    wg_bitrate_vs_target_download = []
+    wg_lost_vs_target_upload = []
+    
+    wg_jitter_vs_target_upload = []
+    wg_jitter_vs_target_download = []
+    
+    for t in udp_tests_masq:
+        if (t.target_bps / 1000000) >= 950:
+            continue
+        if t.is_upload:
+            masq_bitrate_vs_target_upload.append({
+                "target": t.target_bps / 1000000,
+                "received": t.received_bps / 1000000,
+            })
+            masq_lost_vs_target_upload.append({
+                    "target": t.target_bps / 1000000,
+                    "lost": t.lost_packets,
+                    "percentage": t.lost_percent,
+            })
+            masq_jitter_vs_target_upload.append({
+                    "target": t.target_bps / 1000000,
+                    "jitter": t.jitter_ms,
+            })
+        else:
+            masq_bitrate_vs_target_download.append({
+                "target": t.target_bps / 1000000,
+                "received": t.received_bps / 1000000,
+            })
+            masq_jitter_vs_target_download.append({
+                    "target": t.target_bps / 1000000,
+                    "jitter": t.jitter_ms,
+            })
+    for t in udp_tests_wg:
+        if (t.target_bps / 1000000) >= 950:
+            continue
+        if t.is_upload:
+            wg_bitrate_vs_target_upload.append({
+                "target": t.target_bps / 1000000,
+                "received": t.received_bps / 1000000,
+            })
+            wg_lost_vs_target_upload.append({
+                    "target": t.target_bps / 1000000,
+                    "lost": t.lost_packets,
+                    "percentage": t.lost_percent,
+            })
+            wg_jitter_vs_target_upload.append({
+                    "target": t.target_bps / 1000000,
+                    "jitter": t.jitter_ms,
+            })
+        else:
+            wg_bitrate_vs_target_download.append({
+                "target": t.target_bps / 1000000,
+                "received": t.received_bps / 1000000,
+            })
+            wg_jitter_vs_target_download.append({
+                    "target": t.target_bps / 1000000,
+                    "jitter": t.jitter_ms,
+            })
+            
+    lost_packet_plot(
+        wg_lost_vs_target_upload,
+        masq_lost_vs_target_upload,
+        base_path + "lost_pck_vs_target_bitrate_udp_upload",
+        "Upload"
+    )
+    
+    jitter_plot(
+        wg_jitter_vs_target_upload,
+        masq_jitter_vs_target_upload,
+        base_path + "jitter_vs_target_bitrate_udp_upload",
+        "Jitter (ms) vs Target Bitrate Upload",
+    )
+    
+    jitter_plot(
+        wg_jitter_vs_target_download,
+        masq_jitter_vs_target_download,
+        base_path + "jitter_vs_target_bitrate_udp_download",
+        "Jitter (ms) vs Target Bitrate Download",
+    )
+    
+    target_vs_actual_plot(
+        wg_bitrate_vs_target_upload,
+        masq_bitrate_vs_target_upload,
+        base_path + "bps_vs_target_udp_upload",
+        "UDP Upload Target Bitrate vs Measured Bitrate"
+    )
+
+    target_vs_actual_plot(
+        wg_bitrate_vs_target_download,
+        masq_bitrate_vs_target_download,
+        base_path + "bps_vs_target_udp_download",
+        "UDP Download Target Bitrate vs Measured Bitrate"
+    )
+
+def lost_packet_plot(data_wg, data_masq, name, title):
+    plt.close()
+    df_wg = pd.DataFrame(data_wg)
+    df_masq = pd.DataFrame(data_masq)
+    
+    agg_df_wg = df_wg.groupby('target').agg(
+        mean_lost=('lost', 'mean'),
+        std_lost=('lost', 'std'),
+        min_lost=('lost', 'min'),
+        max_lost=('lost', 'max'),
+        mean_percentage=('percentage', 'mean'),
+        std_percentage=('percentage', 'std')
+    ).reset_index()
+    
+    agg_df_masq = df_masq.groupby('target').agg(
+        mean_lost=('lost', 'mean'),
+        std_lost=('lost', 'std'),
+        min_lost=('lost', 'min'),
+        max_lost=('lost', 'max'),
+        mean_percentage=('percentage', 'mean'),
+        std_percentage=('percentage', 'std')
+    ).reset_index()
+    
+    plt.errorbar(agg_df_wg['target'], agg_df_wg['mean_lost'], yerr=agg_df_wg['std_lost'], fmt='o-', capsize=5, label='WireGuard')
+    plt.errorbar(agg_df_masq['target'], agg_df_masq['mean_lost'], yerr=agg_df_masq['std_lost'], fmt='o-', capsize=5, label='Masquerade')
+    plt.xlabel('Target Bitrate (Mbps)')
+    plt.ylabel('Lost Packets')
+    plt.title('Lost Packets (Mean ± Std) vs Target Bitrate | ' + title)
+    plt.legend()
+    plt.savefig(name + "_errorbar.png", dpi=300)
+    plt.savefig(name + "_errorbar.svg")
+    
+    plt.close()
+    
+    # Shaded area plot for lost packets (min-max range)
+    plt.plot(agg_df_wg['target'], agg_df_wg['mean_lost'], marker='o', label='WireGuard')
+    plt.plot(agg_df_masq['target'], agg_df_masq['mean_lost'], marker='o', label='Masquerade')
+    plt.fill_between(agg_df_wg['target'], agg_df_wg['min_lost'], agg_df_wg['max_lost'], color='gray', alpha=0.3, label='Min-Max Range WireGuard')
+    plt.fill_between(agg_df_masq['target'], agg_df_masq['min_lost'], agg_df_masq['max_lost'], color='gray', alpha=0.3, label='Min-Max Range Masquerade')
+    plt.xlabel('Target Bitrate (Mbps)')
+    plt.ylabel('Lost Packets')
+    plt.title('Lost Packets (Mean with Min-Max Range) vs Target Bitrate | ' + title)
+    plt.legend()
+    plt.savefig(name + "_shaded.png", dpi=300)
+    plt.savefig(name + "_shaded.svg")
+    
+    
+    plt.close()
+
+def jitter_plot(wg_data, masq_data, name, title):
+    plt.close()
+    df_wg = pd.DataFrame(wg_data)
+    df_wg.sort_values(by=["target"], inplace=True)
+    mean_df_wg = df_wg.groupby("target", as_index=False)["jitter"].mean()
+    
+    df_masq = pd.DataFrame(masq_data)
+    df_masq.sort_values(by=["target"], inplace=True)
+    mean_df_masq = df_masq.groupby("target", as_index=False)["jitter"].mean()
+
+    plt.plot(mean_df_wg["target"], mean_df_wg["jitter"], linestyle="-", label="WireGuard")
+    plt.plot(mean_df_masq["target"], mean_df_masq["jitter"], linestyle="-", label="Masquerade")
+
+    plt.xlabel("Target Bitrate (Mbit/s)")
+    plt.ylabel("Jitter (ms)")
+    plt.title(title)
+
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+
+    plt.savefig(name + ".png", dpi=300)
+    plt.savefig(name + ".svg")
+    plt.close()
 
 def retransmit_plot(data_wg, data_masq, path, title):
     plt.close()
@@ -226,13 +413,13 @@ def target_vs_actual_plot(data_wg, data_masq, name, title):
     plt.close()
     df_wg = pd.DataFrame(data_wg)
     df_wg.sort_values(by=["target"], inplace=True)
-    mean_df_wg = df_wg.groupby("target", as_index=False)["actual"].mean()
+    mean_df_wg = df_wg.groupby("target", as_index=False)["received"].mean()
     df_masq = pd.DataFrame(data_masq)
     df_masq.sort_values(by=["target"], inplace=True)
-    mean_df_masq = df_masq.groupby("target", as_index=False)["actual"].mean()
+    mean_df_masq = df_masq.groupby("target", as_index=False)["received"].mean()
 
-    plt.plot(mean_df_wg["target"], mean_df_wg["actual"], linestyle="-", label = "WireGuard", color = 'r')
-    plt.plot(mean_df_masq["target"], mean_df_masq["actual"], linestyle="-", label = "Masquerade", color = 'b')
+    plt.plot(mean_df_wg["target"], mean_df_wg["received"], linestyle="-", label = "WireGuard", color = 'r')
+    plt.plot(mean_df_masq["target"], mean_df_masq["received"], linestyle="-", label = "Masquerade", color = 'b')
     plt.xlabel("Target Bitrate (Mbit/s)")
     plt.ylabel("Actual Bitrate (Mbit/s)")
     plt.title(title)
@@ -246,8 +433,32 @@ def target_vs_actual_plot(data_wg, data_masq, name, title):
     plt.savefig(name + ".svg")
     plt.close()
 
+def target_vs_rtt_plot(data_wg, data_masq, name, title):
+    plt.close()
+    df_wg = pd.DataFrame(data_wg)
+    df_wg.sort_values(by=["target"], inplace=True)
+    mean_df_wg = df_wg.groupby("target", as_index=False)["mean_rtt"].mean()
+    df_masq = pd.DataFrame(data_masq)
+    df_masq.sort_values(by=["target"], inplace=True)
+    mean_df_masq = df_masq.groupby("target", as_index=False)["mean_rtt"].mean()
+    
+    plt.plot(mean_df_wg["target"], mean_df_wg["mean_rtt"], linestyle="-", label = "WireGuard", color = 'r')
+    plt.plot(mean_df_masq["target"], mean_df_masq["mean_rtt"], linestyle="-", label = "Masquerade", color = 'b')
+    plt.xlabel("Target Bitrate (Mbit/s)")
+    plt.ylabel("RTT (ms)")
+    plt.title(title)
+
+    plt.legend()
+
+    plt.grid(True)
+    plt.tight_layout()
+
+    plt.savefig(name + ".png", dpi=300)
+    plt.savefig(name + ".svg")
+    plt.close()
+
 # Shows how the bps developed over time
-def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3DataTCP], base_path):
+def interval_plots_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3DataTCP], base_path):
     # First create dataframe which will contain timestamps and bps measurements    
     bps_download_masq = []
     bps_upload_masq = []
@@ -255,20 +466,16 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
     for t in tcp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                for s in t.server_streams:
-                    if s.omitted or math.trunc(s.seconds) != 1:
-                        continue
+                for s in t.intervals:
                     bps_upload_masq.append({
                         "timestamp": math.trunc(s.start),
-                        "bps": s.bps / 1000000
+                        "bps": s.bps_received / 1000000
                     })
             else:
-                for s in t.client_streams: # Download tests: Client measures bps
-                    if s.omitted or math.trunc(s.seconds) != 1:
-                        continue
+                for s in t.intervals: # Download tests: Client measures bps
                     bps_download_masq.append({
                         "timestamp": math.trunc(s.start),
-                        "bps": s.bps / 1000000
+                        "bps": s.bps_received / 1000000
                     })
                     
     bps_download_wg = []
@@ -277,32 +484,24 @@ def bps_over_time(target_bps, tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg:
     for t in tcp_tests_wg: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                for s in t.server_streams:
-                    if s.omitted or math.trunc(s.seconds) != 1:
-                        continue
+                for s in t.intervals:
                     bps_upload_wg.append({
                         "timestamp": math.trunc(s.start),
-                        "bps": s.bps / 1000000
+                        "bps": s.bps_received / 1000000
                     })
             else:
-                for s in t.client_streams: # Download tests: Client measures bps
-                    if s.omitted or math.trunc(s.seconds) != 1:
-                        continue
+                for s in t.intervals: # Download tests: Client measures bps
                     bps_download_wg.append({
                         "timestamp": math.trunc(s.start),
-                        "bps": s.bps / 1000000
+                        "bps": s.bps_received / 1000000
                     })
+    
     bps_over_time_plt(
         bps_download_wg, 
         bps_download_masq, 
         base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target",
         "TCP Download bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s",
         target_bps,
-        [0, 10, 20, 30, 40, 50, 60],
-        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0],
-        2.0,
-        "Fake Packet Loss (%)",
-        "Fake Packet Loss"
     )
     
 def bps_over_time_plt(
@@ -310,12 +509,7 @@ def bps_over_time_plt(
     data_masq, 
     path, 
     title, 
-    target, 
-    condition_time, 
-    condition_val, 
-    max_cond_val,
-    cond_axis_title, 
-    cond_legend):
+    target):
     
     plt.close()
     df_wg = pd.DataFrame(data_wg)
@@ -327,26 +521,11 @@ def bps_over_time_plt(
     
     ax = plt.gca()
     ax.set_ylim([0.0, target + 10])
-    
-    fig, ax1 = plt.subplots()
-    
-    ax1.set_ylim([0.0, target + 10])
 
-    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["bps"], linestyle="-", label = "Masquerade", color = 'b')
-    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["bps"], linestyle="-", label = "WireGuard", color = 'r')
+    plt.plot(mean_df_masq["timestamp"], mean_df_masq["bps"], linestyle="-", label = "Masquerade", color = 'b')
+    plt.plot(mean_df_wg["timestamp"], mean_df_wg["bps"], linestyle="-", label = "WireGuard", color = 'r')
     
-    ax2 = ax1.twinx()
-    ax2.set_ylim([0.0, max_cond_val])
-    ax2.step(condition_time, condition_val, where='post', label=cond_legend, color='orange', linestyle='-', marker='o')
-    ax2.set_ylabel(cond_axis_title, color='orange')
-    ax2.tick_params(axis='y', labelcolor='orange')
-    
-    lines_1, labels_1 = ax1.get_legend_handles_labels()
-    lines_2, labels_2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center')
-    
-    ax1.set_xlabel("Timestamp (s)")
-    ax1.set_ylabel("Bitrate (mbit/s)")
+    plt.legend()
     plt.title(title)
 
     #plt.legend()
