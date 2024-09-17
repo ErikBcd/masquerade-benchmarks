@@ -735,7 +735,7 @@ def udp_interval_plots(
     jitter_over_time_plt(
         jitter_upload_wg, 
         jitter_upload_masq, 
-        base_path + "bps_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
+        base_path + "jitter_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
         "UDP Upload Jitter over time with target " + str(target_bps) + "mbit/s | " + condition_legend_label,
         condition_times,
         condition_values,
