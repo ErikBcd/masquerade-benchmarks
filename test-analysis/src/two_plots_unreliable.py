@@ -256,28 +256,28 @@ def analyze_tcp(
         retrans_upload_wg,
         retrans_upload_masq,
         base_path + "retransmits_vs_bitrate_tcp_upload_" + condition_name,
-        "TCP Upload Target Bitrate vs Retransmitted Packets with " + condition_legend_label,
+        "TCP Upload Target Bitrate vs Retransmitted Packets \n" + condition_legend_label,
     )
 
     retransmit_plot(
         retrans_dwload_wg,
         retrans_dwload_masq,
         base_path + "retransmits_vs_bitrate_tcp_download_" + condition_name,
-        "TCP Download Target Bitrate vs Retransmitted Packets with " + condition_legend_label,
+        "TCP Download Target Bitrate vs Retransmitted Packets \n" + condition_legend_label,
     )
 
     target_vs_actual_plot(
         bps_upload_wg,
         bps_upload_masq,
         base_path + "bps_vs_target_tcp_upload_" + condition_name,
-        "TCP Upload Target Bitrate vs Measured Bitrate with " + condition_legend_label,
+        "TCP Upload Target Bitrate vs Measured Bitrate \n" + condition_legend_label,
     )
 
     target_vs_actual_plot(
         bps_dwload_wg,
         bps_dwload_masq,
         base_path + "bps_vs_target_tcp_download_" + condition_name,
-        "TCP Download Target Bitrate vs Measured Bitrate with " + condition_legend_label,
+        "TCP Download Target Bitrate vs Measured Bitrate \n" + condition_legend_label,
     )
     
     tcp_interval_plots(
@@ -404,35 +404,35 @@ def analyze_udp(
         wg_lost_vs_target_upload,
         masq_lost_vs_target_upload,
         base_path + "lost_pck_vs_target_bitrate_udp_upload_" + condition_name,
-        "UDP Upload Lost Packets with " + condition_legend_label
+        "UDP Upload Lost Packets \n" + condition_legend_label
     )
     
     jitter_plot(
         wg_jitter_vs_target_upload,
         masq_jitter_vs_target_upload,
         base_path + "jitter_vs_target_bitrate_udp_upload_" + condition_name,
-        "Jitter (ms) vs Target Bitrate Upload with " + condition_legend_label
+        "Jitter (ms) vs Target Bitrate Upload \n" + condition_legend_label
     )
     
     jitter_plot(
         wg_jitter_vs_target_download,
         masq_jitter_vs_target_download,
         base_path + "jitter_vs_target_bitrate_udp_download_" + condition_name,
-        "Jitter (ms) vs Target Bitrate Download with " + condition_legend_label
+        "Jitter (ms) vs Target Bitrate Download \n" + condition_legend_label
     )
     
     target_vs_actual_plot(
         wg_bitrate_vs_target_upload,
         masq_bitrate_vs_target_upload,
         base_path + "bps_vs_target_udp_upload_" + condition_name,
-        "UDP Upload Target Bitrate vs Measured Bitrate with " + condition_legend_label
+        "UDP Upload Target Bitrate vs Measured Bitrate \n" + condition_legend_label
     )
 
     target_vs_actual_plot(
         wg_bitrate_vs_target_download,
         masq_bitrate_vs_target_download,
         base_path + "bps_vs_target_udp_download_" + condition_name,
-        "UDP Download Target Bitrate vs Measured Bitrate with " + condition_legend_label
+        "UDP Download Target Bitrate vs Measured Bitrate \n" + condition_legend_label
     )
     
     udp_interval_plots(
@@ -703,7 +703,7 @@ def udp_interval_plots(
         bps_download_wg, 
         bps_download_masq, 
         base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Download Bitrate over time with target " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "UDP Download Bitrate over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -714,7 +714,7 @@ def udp_interval_plots(
         bps_upload_wg, 
         bps_upload_masq, 
         base_path + "bps_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Upload Bitrate over time with target " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "UDP Upload Bitrate over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -725,7 +725,7 @@ def udp_interval_plots(
         jitter_download_wg, 
         jitter_download_masq, 
         base_path + "jitter_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Download Jitter over time with target " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "UDP Download Jitter over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -736,7 +736,7 @@ def udp_interval_plots(
         jitter_upload_wg, 
         jitter_upload_masq, 
         base_path + "jitter_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Upload Jitter over time with target " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "UDP Upload Jitter over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -747,7 +747,7 @@ def udp_interval_plots(
         packetloss_download_wg, 
         packetloss_download_masq, 
         base_path + "pl_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Download Packetloss over time with target " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "UDP Download Packetloss over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -788,7 +788,7 @@ def tcp_interval_plots(
     for t in tcp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if not t.is_upload:
-                i = 0
+                i = 1
                 for s in t.intervals:
                     bps_upload_masq.append({
                         "timestamp": i,
@@ -804,7 +804,7 @@ def tcp_interval_plots(
                     })
                     i += 1
             else:
-                i = 0
+                i = 1
                 for s in t.intervals: # Download tests: Client measures bps
                     bps_download_masq.append({
                         "timestamp": i,
@@ -866,7 +866,7 @@ def tcp_interval_plots(
         bps_download_wg, 
         bps_download_masq, 
         base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Download bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "TCP Download bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -877,7 +877,7 @@ def tcp_interval_plots(
         bps_upload_wg, 
         bps_upload_masq, 
         base_path + "bps_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Upload bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "TCP Upload bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -888,7 +888,7 @@ def tcp_interval_plots(
         rtt_download_wg, 
         rtt_download_masq, 
         base_path + "rtt_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Download RTT over time | Target bitrate: " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "TCP Download RTT over time | Target bitrate: " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -899,7 +899,7 @@ def tcp_interval_plots(
         rtt_upload_wg, 
         rtt_upload_masq, 
         base_path + "rtt_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Upload RTT over time | Target bitrate: " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "TCP Upload RTT over time | Target bitrate: " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -910,7 +910,7 @@ def tcp_interval_plots(
         retrans_upload_wg, 
         retrans_upload_masq, 
         base_path + "retrans_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Upload Retransmits over time at " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "TCP Upload Retransmits over time at " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
@@ -921,7 +921,7 @@ def tcp_interval_plots(
         retrans_download_wg, 
         retrans_download_masq, 
         base_path + "retrans_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Download Retransmits over time at " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        "TCP Download Retransmits over time at " + str(target_bps) + "mbit/s \n " + condition_legend_label,
         condition_times,
         condition_values,
         condition_axis_label,
