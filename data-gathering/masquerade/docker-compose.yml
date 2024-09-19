@@ -46,6 +46,7 @@ services:
   iperf3:
     container_name: iperf3-client-masq
     image: iperf3_client
+    privileged: true
     cap_add:
       - NET_ADMIN
     volumes:

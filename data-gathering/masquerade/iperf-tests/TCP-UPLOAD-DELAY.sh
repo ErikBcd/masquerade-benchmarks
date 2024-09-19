@@ -7,7 +7,7 @@ json_path="/iperf/$BITRATE-P$PARALLEL-T70s-TCP-UPLOAD-DELAY-$TESTCASE-$time.json
 
 echo "TCP Upload test with changing delay | Bitrate: $BITRATE"
 
-iperf3 -c $IPERF_SERVER_IP --port 7070 -t 70 -b "$BITRATE"M -P "$PARALLEL" -O 2 --get-server-output --json --logfile "$json_path" &
+iperf3 -c $IPERF_SERVER_IP --port 7070 -t 70 -b "$BITRATE"M -P "$PARALLEL" -O 2 --set-mss $PACKET_SIZE --get-server-output --json --logfile "$json_path" &
 
 sleep 12
 
