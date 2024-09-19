@@ -620,7 +620,7 @@ def udp_interval_plots(
 
     for t in udp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
-            if not t.is_upload:
+            if t.is_upload:
                 i = 0
                 for s in t.intervals:
                     bps_upload_masq.append({
@@ -664,7 +664,7 @@ def udp_interval_plots(
 
     for t in udp_tests_wg: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
-            if not t.is_upload:
+            if t.is_upload:
                 i = 0
                 for s in t.intervals:
                     bps_upload_wg.append({
