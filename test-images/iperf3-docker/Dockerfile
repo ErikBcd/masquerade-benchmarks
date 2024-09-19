@@ -8,7 +8,7 @@ FROM archlinux:latest
 #   && rm -rf /var/lib/apt/lists/*
 
 RUN pacman -Syu --noconfirm \
-    && pacman -Sy --noconfirm iperf3
+    && pacman -Sy --noconfirm iperf3 linux
 
 # Expose the default iperf3 server port
 EXPOSE 7070/tcp
