@@ -20,14 +20,18 @@ def main():
     wg_dir = path.normpath(
         "../raw-test-results/unreliability_tests/wireguard-70s-200mbits-50/"
     )
+    
+    output_path = "../test-result-graphs/joined_results/unreliable_1000mbits_70s/default-mtu/"
 
     masq_results = [f for f in os.listdir(masq_dir) if isfile(join(masq_dir, f))]
     wg_results = [f for f in os.listdir(wg_dir) if isfile(join(wg_dir, f))]
 
+    udp_tests_masq_pl_mtu200 = []
     udp_tests_masq_pl = []
     udp_tests_masq_bandwidth = []
     udp_tests_masq_delay = []
     tcp_tests_masq_pl = []
+    tcp_tests_masq_pl_mtu200 = []
     tcp_tests_masq_bandwidth = []
     tcp_tests_masq_delay = []
     for f in masq_results:
@@ -42,7 +46,10 @@ def main():
                 t = Iperf3DataUDP()
                 t.parse(jsondata)
                 if "PACKETLOSS" in f:
-                    udp_tests_masq_pl.append(t)
+                    if "PACKET_SIZE-200" in f:
+                        udp_tests_masq_pl_mtu200.append(t)
+                    else:
+                        udp_tests_masq_pl.append(t)
                 elif "BANDWIDTH" in f:
                     udp_tests_masq_bandwidth.append(t)
                 elif "DELAY" in f:
@@ -53,7 +60,11 @@ def main():
                 t = Iperf3DataTCP()
                 t.parse(jsondata)
                 if "PACKETLOSS" in f:
-                    tcp_tests_masq_pl.append(t)
+                    if "PACKET_SIZE-200" in f:
+                        tcp_tests_masq_pl_mtu200.append(t)
+                    else:
+                        tcp_tests_masq_pl.append(t)
+                    #tcp_tests_masq_pl.append(t)
                 elif "BANDWIDTH" in f:
                     tcp_tests_masq_bandwidth.append(t)
                 elif "DELAY" in f:
@@ -63,10 +74,12 @@ def main():
         else:
             print("Failed test: " + p)
 
+    udp_tests_wg_pl_mtu200 = []
     udp_tests_wg_pl = []
     udp_tests_wg_bandwidth = []
     udp_tests_wg_delay = []
     tcp_tests_wg_pl = []
+    tcp_tests_wg_pl_mtu200 = []
     tcp_tests_wg_bandwidth = []
     tcp_tests_wg_delay = []
     for f in wg_results:
@@ -81,7 +94,10 @@ def main():
                 t = Iperf3DataUDP()
                 t.parse(jsondata)
                 if "PACKETLOSS" in f:
-                    udp_tests_wg_pl.append(t)
+                    if "PACKET_SIZE-200" in f:
+                        udp_tests_wg_pl_mtu200.append(t)
+                    else:
+                        udp_tests_wg_pl.append(t)
                 elif "BANDWIDTH" in f:
                     udp_tests_wg_bandwidth.append(t)
                 elif "DELAY" in f:
@@ -92,7 +108,10 @@ def main():
                 t = Iperf3DataTCP()
                 t.parse(jsondata)
                 if "PACKETLOSS" in f:
-                    tcp_tests_wg_pl.append(t)
+                    if "PACKET_SIZE-200" in f:
+                        tcp_tests_wg_pl_mtu200.append(t)
+                    else:
+                        tcp_tests_wg_pl.append(t)
                 elif "BANDWIDTH" in f:
                     tcp_tests_wg_bandwidth.append(t)
                 elif "DELAY" in f:
@@ -102,10 +121,21 @@ def main():
         else:
             print("Failed test: " + p)
     
+    if len(tcp_tests_masq_pl_mtu200) != 0:
+        analyze_tcp(
+            tcp_tests_masq_pl_mtu200, 
+            tcp_tests_wg_pl_mtu200, 
+            output_path + '/tcp/packetloss/mtu200_',
+            [0, 10, 20, 30, 40, 50, 60, 70],
+            [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+            "packetloss",
+            "Packet Loss (%)",
+            "Packet Loss")
+    
     analyze_tcp(
         tcp_tests_masq_pl, 
         tcp_tests_wg_pl, 
-        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/tcp/packetloss/',
+        output_path + '/tcp/packetloss/',
         [0, 10, 20, 30, 40, 50, 60, 70],
         [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
         "packetloss",
@@ -115,7 +145,7 @@ def main():
     analyze_tcp(
         tcp_tests_masq_delay, 
         tcp_tests_wg_delay, 
-        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/tcp/delay/',
+        output_path + '/tcp/delay/',
         [0, 10, 20, 30, 40, 50, 60, 70],
         [0, 10, 20, 50, 20, 10, 0, 0],
         "delay",
@@ -125,7 +155,7 @@ def main():
     analyze_tcp(
         tcp_tests_masq_bandwidth, 
         tcp_tests_wg_bandwidth, 
-        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/tcp/bandwidth/',
+        output_path + '/tcp/bandwidth/',
         [10, 20, 30, 40, 50, 60],
         [50, 30, 10, 30, 50, 50],
         "bandwidth",
@@ -133,20 +163,34 @@ def main():
         "Bandwidth Limit")
     
     # TODO: Fix packet loss results
-    #analyze_udp(
-    #    udp_tests_masq_pl, 
-    #    udp_tests_wg_pl, 
-    #    '../test-result-graphs/joined_results/unreliable_1000mbits_70s/udp/packetloss/',
-    #    [0, 10, 20, 30, 40, 50, 60, 70],
-    #    [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
-    #    "packetloss",
-    #    "Packet Loss (%)",
-    #    "Packet Loss")
+    #if len(udp_tests_masq_pl) != 0:
+    #    analyze_udp(
+    #        udp_tests_masq_pl, 
+    #        udp_tests_wg_pl, 
+    #        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/udp/packetloss/',
+    #        [0, 10, 20, 30, 40, 50, 60, 70],
+    #        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+    #        "packetloss",
+    #        "Packet Loss (%)",
+    #        "Packet Loss")
+    #else:
+    #    print("No usable udp tests for packet loss at mtu 800!")
+    
+    if len(udp_tests_masq_pl_mtu200) != 0:
+        analyze_udp(
+            udp_tests_masq_pl_mtu200, 
+            udp_tests_wg_pl_mtu200, 
+            output_path + '/udp/packetloss/mtu200_',
+            [0, 10, 20, 30, 40, 50, 60, 70],
+            [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+            "packetloss",
+            "Packet Loss (%)",
+            "Packet Loss")
     
     analyze_udp(
         udp_tests_masq_delay, 
         udp_tests_wg_delay, 
-        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/udp/delay/',
+        output_path + '/udp/delay/',
         [0, 10, 20, 30, 40, 50, 60, 70],
         [0, 10, 20, 50, 20, 10, 0, 0],
         "delay",
@@ -156,7 +200,7 @@ def main():
     analyze_udp(
         udp_tests_masq_bandwidth, 
         udp_tests_wg_bandwidth, 
-        '../test-result-graphs/joined_results/unreliable_1000mbits_70s/udp/bandwidth/',
+        output_path + '/udp/bandwidth/',
         [10, 20, 30, 40, 50, 60],
         [50, 30, 10, 30, 50, 50],
         "bandwidth",
@@ -399,7 +443,7 @@ def analyze_udp(
                     "target": t.target_bps / 1000000,
                     "jitter": t.jitter_ms,
             })
-            
+             
     lost_packet_plot(
         wg_lost_vs_target_upload,
         masq_lost_vs_target_upload,
@@ -787,7 +831,7 @@ def tcp_interval_plots(
     
     for t in tcp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
-            if not t.is_upload:
+            if t.is_upload:
                 i = 1
                 for s in t.intervals:
                     bps_upload_masq.append({
@@ -827,9 +871,9 @@ def tcp_interval_plots(
     rtt_upload_wg = []
     rtt_download_wg = []
     
-    for t in tcp_tests_wg: # Download tests: Server measures bps (not 100% sure!)
+    for t in tcp_tests_wg: 
         if t.target_bps == target_bps * 1000000:
-            if not t.is_upload:
+            if t.is_upload:
                 i = 2
                 for s in t.intervals:
                     bps_upload_wg.append({
