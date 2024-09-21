@@ -553,7 +553,7 @@ def lost_packet_plot(data_wg, data_masq, name, title):
     plt.title('Lost Packets (Mean ± Std) vs Target Bitrate | ' + title)
     plt.legend()
     plt.savefig(name + "_errorbar.png", dpi=300)
-    plt.savefig(name + "_errorbar.svg")
+    plt.savefig(name + "_errorbar.pdf")
     
     plt.close()
     
@@ -567,7 +567,7 @@ def lost_packet_plot(data_wg, data_masq, name, title):
     plt.title('Lost Packets (Mean with Min-Max Range) vs Target Bitrate | ' + title)
     plt.legend()
     plt.savefig(name + "_shaded.png", dpi=300)
-    plt.savefig(name + "_shaded.svg")
+    plt.savefig(name + "_shaded.pdf")
     
     
     plt.close()
@@ -594,7 +594,7 @@ def jitter_plot(wg_data, masq_data, name, title):
     plt.tight_layout()
 
     plt.savefig(name + ".png", dpi=300)
-    plt.savefig(name + ".svg")
+    plt.savefig(name + ".pdf")
     plt.close()
 
 def retransmit_plot(data_wg, data_masq, path, title):
@@ -617,7 +617,7 @@ def retransmit_plot(data_wg, data_masq, path, title):
 
     # Save the plot to a file
     plt.savefig(path + ".png", dpi=300)
-    plt.savefig(path + ".svg")
+    plt.savefig(path + ".pdf")
     plt.close()
 
 def target_vs_actual_plot(data_wg, data_masq, name, title):
@@ -641,7 +641,7 @@ def target_vs_actual_plot(data_wg, data_masq, name, title):
     plt.tight_layout()
 
     plt.savefig(name + ".png", dpi=300)
-    plt.savefig(name + ".svg")
+    plt.savefig(name + ".pdf")
     plt.close()
 
 def udp_interval_plots(
@@ -1038,7 +1038,7 @@ def rtt_over_time_plt(
     # Save the plot to a file
     print("Saving plot as " + path + ".png")
     plt.savefig(path + ".png", dpi=300)
-    plt.savefig(path + ".svg")
+    plt.savefig(path + ".pdf")
     plt.close() 
 
 def packetloss_over_time_plt(
@@ -1107,7 +1107,7 @@ def packetloss_over_time_plt(
     # Save the plot to a file
     print("Saving plot as " + path + ".png")
     plt.savefig(path + ".png", dpi=300)
-    plt.savefig(path + ".svg")
+    plt.savefig(path + ".pdf")
     plt.close() 
 
 def jitter_over_time_plt(
@@ -1176,7 +1176,7 @@ def jitter_over_time_plt(
     # Save the plot to a file
     print("Saving plot as " + path + ".png")
     plt.savefig(path + ".png", dpi=300)
-    plt.savefig(path + ".svg")
+    plt.savefig(path + ".pdf")
     plt.close() 
 
 def bps_over_time_plt(
@@ -1245,7 +1245,7 @@ def bps_over_time_plt(
     # Save the plot to a file
     print("Saving plot as " + path + ".png")
     plt.savefig(path + ".png", dpi=300)
-    plt.savefig(path + ".svg")
+    plt.savefig(path + ".pdf")
     plt.close()
     
 def retransmits_over_time_plt(
@@ -1312,7 +1312,7 @@ def retransmits_over_time_plt(
     # Save the plot to a file
     print("Saving plot as " + path + ".png")
     plt.savefig(path + ".png", dpi=300)
-    plt.savefig(path + ".svg")
+    plt.savefig(path + ".pdf")
     plt.close()
 
 if __name__ == "__main__":
