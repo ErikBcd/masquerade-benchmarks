@@ -8,10 +8,19 @@ from testparser import Iperf3DataTCP, Iperf3DataUDP
 import pandas as pd
 import matplotlib.pyplot as plt
 
-wireguard_color = 'red'
-masquerade_color = 'blue'
+wireguard_color = '#e02214'
+wireguard_area_color = '#eba09b'
+masquerade_color = '#1e14e0'
+masquerade_area_color = '#9d9bcf'
+linewidth = 4.0
 condition_color = 'green'
+condition_fill_color = 'green'
+condition_fill_alpha = 0.2
 condition_line_style = ':'
+
+fontsize=30
+figuresize=(13,9)
+figuresize_wider=(15,9)
 
 def main():
     masq_dir = path.normpath(
@@ -525,6 +534,8 @@ def analyze_udp(
 
 def lost_packet_plot(data_wg, data_masq, name, title):
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(data_wg)
     df_masq = pd.DataFrame(data_masq)
     
@@ -556,12 +567,14 @@ def lost_packet_plot(data_wg, data_masq, name, title):
     plt.savefig(name + "_errorbar.pdf")
     
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     
     # Shaded area plot for lost packets (min-max range)
     plt.plot(agg_df_wg['target'], agg_df_wg['mean_lost'], marker='o', label='WireGuard')
     plt.plot(agg_df_masq['target'], agg_df_masq['mean_lost'], marker='o', label='Masquerade')
-    plt.fill_between(agg_df_wg['target'], agg_df_wg['min_lost'], agg_df_wg['max_lost'], color='gray', alpha=0.3, label='Min-Max Range WireGuard')
-    plt.fill_between(agg_df_masq['target'], agg_df_masq['min_lost'], agg_df_masq['max_lost'], color='gray', alpha=0.3, label='Min-Max Range Masquerade')
+    plt.fill_between(agg_df_wg['target'], agg_df_wg['min_lost'], agg_df_wg['max_lost'], color=wireguard_area_color, alpha=0.3, label='Min-Max Range WireGuard')
+    plt.fill_between(agg_df_masq['target'], agg_df_masq['min_lost'], agg_df_masq['max_lost'], color=masquerade_area_color, alpha=0.3, label='Min-Max Range Masquerade')
     plt.xlabel('Target Bitrate (Mbps)')
     plt.ylabel('Lost Packets')
     plt.title('Lost Packets (Mean with Min-Max Range) vs Target Bitrate | ' + title)
@@ -574,6 +587,8 @@ def lost_packet_plot(data_wg, data_masq, name, title):
 
 def jitter_plot(wg_data, masq_data, name, title):
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(wg_data)
     df_wg.sort_values(by=["target"], inplace=True)
     mean_df_wg = df_wg.groupby("target", as_index=False)["jitter"].mean()
@@ -582,8 +597,8 @@ def jitter_plot(wg_data, masq_data, name, title):
     df_masq.sort_values(by=["target"], inplace=True)
     mean_df_masq = df_masq.groupby("target", as_index=False)["jitter"].mean()
 
-    plt.plot(mean_df_wg["target"], mean_df_wg["jitter"], linestyle="-", label="WireGuard")
-    plt.plot(mean_df_masq["target"], mean_df_masq["jitter"], linestyle="-", label="Masquerade")
+    plt.plot(mean_df_wg["target"], mean_df_wg["jitter"], linestyle="-", label="WireGuard", linewidth=linewidth)
+    plt.plot(mean_df_masq["target"], mean_df_masq["jitter"], linestyle="-", label="Masquerade", linewidth=linewidth)
 
     plt.xlabel("Target Bitrate (Mbit/s)")
     plt.ylabel("Jitter (ms)")
@@ -599,6 +614,8 @@ def jitter_plot(wg_data, masq_data, name, title):
 
 def retransmit_plot(data_wg, data_masq, path, title):
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(data_wg)
     mean_df_wg = df_wg.groupby("target", as_index=False)["retrans"].mean()
     df_masq = pd.DataFrame(data_masq)
@@ -622,6 +639,8 @@ def retransmit_plot(data_wg, data_masq, path, title):
 
 def target_vs_actual_plot(data_wg, data_masq, name, title):
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(data_wg)
     df_wg.sort_values(by=["target"], inplace=True)
     mean_df_wg = df_wg.groupby("target", as_index=False)["received"].mean()
@@ -629,8 +648,8 @@ def target_vs_actual_plot(data_wg, data_masq, name, title):
     df_masq.sort_values(by=["target"], inplace=True)
     mean_df_masq = df_masq.groupby("target", as_index=False)["received"].mean()
 
-    plt.plot(mean_df_wg["target"], mean_df_wg["received"], linestyle="-", label = "WireGuard", color = wireguard_color)
-    plt.plot(mean_df_masq["target"], mean_df_masq["received"], linestyle="-", label = "Masquerade", color = masquerade_color)
+    plt.plot(mean_df_wg["target"], mean_df_wg["received"], linestyle="-", label = "WireGuard", color = wireguard_color, linewidth=linewidth)
+    plt.plot(mean_df_masq["target"], mean_df_masq["received"], linestyle="-", label = "Masquerade", color = masquerade_color, linewidth=linewidth)
     plt.xlabel("Target Bitrate (Mbit/s)")
     plt.ylabel("Actual Bitrate (Mbit/s)")
     plt.title(title)
@@ -665,7 +684,7 @@ def udp_interval_plots(
     for t in udp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                i = 0
+                i = 1
                 for s in t.intervals:
                     bps_upload_masq.append({
                         "timestamp": i,
@@ -682,7 +701,7 @@ def udp_interval_plots(
                     })
                     i += 1
             else:
-                i = 0
+                i = 1
                 for s in t.intervals: # Download tests: Client measures bps
                     bps_download_masq.append({
                         "timestamp": i,
@@ -709,7 +728,7 @@ def udp_interval_plots(
     for t in udp_tests_wg: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                i = 0
+                i = 1
                 for s in t.intervals:
                     bps_upload_wg.append({
                         "timestamp": i,
@@ -726,7 +745,7 @@ def udp_interval_plots(
                     })
                     i += 1
             else:
-                i = 0
+                i = 1
                 for s in t.intervals: # Download tests: Client measures bps
                     bps_download_wg.append({
                         "timestamp": i,
@@ -747,7 +766,7 @@ def udp_interval_plots(
         bps_download_wg, 
         bps_download_masq, 
         base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Download Bitrate over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nUDP Download Bitrate over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -758,7 +777,7 @@ def udp_interval_plots(
         bps_upload_wg, 
         bps_upload_masq, 
         base_path + "bps_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Upload Bitrate over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nUDP Upload Bitrate over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -769,7 +788,7 @@ def udp_interval_plots(
         jitter_download_wg, 
         jitter_download_masq, 
         base_path + "jitter_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Download Jitter over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nUDP Download Jitter over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -780,7 +799,7 @@ def udp_interval_plots(
         jitter_upload_wg, 
         jitter_upload_masq, 
         base_path + "jitter_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Upload Jitter over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nUDP Upload Jitter over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -791,7 +810,7 @@ def udp_interval_plots(
         packetloss_download_wg, 
         packetloss_download_masq, 
         base_path + "pl_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Download Packetloss over time with target " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nUDP Download Packetloss over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -910,7 +929,7 @@ def tcp_interval_plots(
         bps_download_wg, 
         bps_download_masq, 
         base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Download bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label + "\nTCP Download bitrate over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s ",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -921,7 +940,7 @@ def tcp_interval_plots(
         bps_upload_wg, 
         bps_upload_masq, 
         base_path + "bps_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Upload bitrate over time | Target bitrate: " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label + "\nTCP Upload bitrate over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -932,7 +951,7 @@ def tcp_interval_plots(
         rtt_download_wg, 
         rtt_download_masq, 
         base_path + "rtt_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Download RTT over time | Target bitrate: " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nTCP Download RTT over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -943,7 +962,7 @@ def tcp_interval_plots(
         rtt_upload_wg, 
         rtt_upload_masq, 
         base_path + "rtt_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Upload RTT over time | Target bitrate: " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nTCP Upload RTT over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -954,7 +973,7 @@ def tcp_interval_plots(
         retrans_upload_wg, 
         retrans_upload_masq, 
         base_path + "retrans_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Upload Retransmits over time at " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nTCP Upload Retransmits over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -965,7 +984,7 @@ def tcp_interval_plots(
         retrans_download_wg, 
         retrans_download_masq, 
         base_path + "retrans_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-        "TCP Download Retransmits over time at " + str(target_bps) + "mbit/s \n " + condition_legend_label,
+        condition_legend_label+"\nTCP Download Retransmits over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -983,6 +1002,8 @@ def rtt_over_time_plt(
     cond_legend):
     
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(data_wg)
     
     #print("wg data: \n" + df_wg)
@@ -1007,17 +1028,17 @@ def rtt_over_time_plt(
     if "Latency" not in cond_legend:
         ax2 = ax1.twinx()
         ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
-        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
+        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
         ax2.set_ylabel(cond_axis_title, color=condition_color)
         ax2.tick_params(axis='y', labelcolor=condition_color)
         lines_2, labels_2 = ax2.get_legend_handles_labels()
-        ax2.fill_between(condition_time, condition_val, step='post', alpha=0.4)
+        ax2.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
     else:
-        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
-        ax1.fill_between(condition_time, condition_val, step='post', alpha=0.4)
+        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
+        ax1.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
         
-    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["rtt"], linestyle="-", label = "Masquerade", color = masquerade_color)
-    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["rtt"], linestyle="-", label = "WireGuard", color = wireguard_color)
+    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["rtt"], linestyle="-", label = "Masquerade", color = masquerade_color, linewidth=linewidth)
+    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["rtt"], linestyle="-", label = "WireGuard", color = wireguard_color, linewidth=linewidth)
     
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     
@@ -1052,6 +1073,8 @@ def packetloss_over_time_plt(
     cond_legend):
     
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(data_wg)
     
     #print("wg data: \n" + df_wg)
@@ -1073,20 +1096,16 @@ def packetloss_over_time_plt(
     ax1.set_ylim([0.0, max_lost_percent + 10])
 
     
-    if "Latency" not in cond_legend:
-        ax2 = ax1.twinx()
-        ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
-        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
-        ax2.set_ylabel(cond_axis_title, color=condition_color)
-        ax2.tick_params(axis='y', labelcolor=condition_color)
-        lines_2, labels_2 = ax2.get_legend_handles_labels()
-        ax2.fill_between(condition_time, condition_val, step='post', alpha=0.4)
-    else:
-        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
-        ax1.fill_between(condition_time, condition_val, step='post', alpha=0.4)
-        
-    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["lost_percent"], linestyle="-", label = "Masquerade", color = masquerade_color)
-    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["lost_percent"], linestyle="-", label = "WireGuard", color = wireguard_color)
+    ax2 = ax1.twinx()
+    ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
+    ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
+    ax2.set_ylabel(cond_axis_title, color=condition_color)
+    ax2.tick_params(axis='y', labelcolor=condition_color)
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax2.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
+    
+    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["lost_percent"], linestyle="-", label = "Masquerade", color = masquerade_color, linewidth=linewidth)
+    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["lost_percent"], linestyle="-", label = "WireGuard", color = wireguard_color, linewidth=linewidth)
     
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     
@@ -1121,6 +1140,8 @@ def jitter_over_time_plt(
     cond_legend):
     
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(data_wg)
     
     #print("wg data: \n" + df_wg)
@@ -1145,17 +1166,17 @@ def jitter_over_time_plt(
     if "Latency" not in cond_legend:
         ax2 = ax1.twinx()
         ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
-        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
+        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
         ax2.set_ylabel(cond_axis_title, color=condition_color)
         ax2.tick_params(axis='y', labelcolor=condition_color)
         lines_2, labels_2 = ax2.get_legend_handles_labels()
-        ax2.fill_between(condition_time, condition_val, step='post', alpha=0.4)
+        ax2.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
     else:
-        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
-        ax1.fill_between(condition_time, condition_val, step='post', alpha=0.4)
+        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
+        ax1.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
         
-    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["jitter"], linestyle="-", label = "Masquerade", color = masquerade_color)
-    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["jitter"], linestyle="-", label = "WireGuard", color = wireguard_color)
+    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["jitter"], linestyle="-", label = "Masquerade", color = masquerade_color, linewidth=linewidth)
+    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["jitter"], linestyle="-", label = "WireGuard", color = wireguard_color, linewidth=linewidth)
     
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     
@@ -1190,6 +1211,8 @@ def bps_over_time_plt(
     cond_legend):
     
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(data_wg)
     
     #print("wg data: \n" + df_wg)
@@ -1210,19 +1233,19 @@ def bps_over_time_plt(
     
     ax1.set_ylim([0.0, max_bps + 10])
 
-    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["bps"], linestyle="-", label = "Masquerade", color = masquerade_color)
-    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["bps"], linestyle="-", label = "WireGuard", color = wireguard_color)
+    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["bps"], linestyle="-", label = "Masquerade", color = masquerade_color, linewidth=linewidth)
+    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["bps"], linestyle="-", label = "WireGuard", color = wireguard_color, linewidth=linewidth)
     if "Bandwidth" not in cond_legend:
         ax2 = ax1.twinx()
         ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
-        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
+        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
         ax2.set_ylabel(cond_axis_title, color=condition_color)
         ax2.tick_params(axis='y', labelcolor=condition_color)
         lines_2, labels_2 = ax2.get_legend_handles_labels()
-        ax2.fill_between(condition_time, condition_val, step='post', alpha=0.4)
+        ax2.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
     else:
-        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
-        ax1.fill_between(condition_time, condition_val, step='post', alpha=0.4)
+        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
+        ax1.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
     
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     
@@ -1231,7 +1254,7 @@ def bps_over_time_plt(
     elif "Latency" in cond_legend:
         ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper center')
     else:
-        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center')
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper left')
     
     ax1.set_xlabel("Timestamp (s)")
     ax1.set_ylabel("Bitrate (mbit/s)")
@@ -1259,6 +1282,8 @@ def retransmits_over_time_plt(
     cond_legend):
     
     plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
     df_wg = pd.DataFrame(data_wg)
     
     #print("wg data: \n" + df_wg)
@@ -1279,16 +1304,16 @@ def retransmits_over_time_plt(
     
     ax1.set_ylim([0.0, max_retransmits + ((max_retransmits+2)/2)])
 
-    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["retransmits"], linestyle="-", label = "Masquerade", color = masquerade_color)
-    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["retransmits"], linestyle="-", label = "WireGuard", color = wireguard_color)
+    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["retransmits"], linestyle="-", label = "Masquerade", color = masquerade_color, linewidth=linewidth)
+    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["retransmits"], linestyle="-", label = "WireGuard", color = wireguard_color, linewidth=linewidth)
 
     ax2 = ax1.twinx()
     ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
-    ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style)
+    ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
     ax2.set_ylabel(cond_axis_title, color=condition_color)
     ax2.tick_params(axis='y', labelcolor=condition_color)
     lines_2, labels_2 = ax2.get_legend_handles_labels()
-    ax2.fill_between(condition_time, condition_val, step='post', alpha=0.4)
+    ax2.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
     
     
     lines_1, labels_1 = ax1.get_legend_handles_labels()
