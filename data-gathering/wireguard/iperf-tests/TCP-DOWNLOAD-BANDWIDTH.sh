@@ -1,7 +1,7 @@
 #!/bin/bash
 #echo "Testcase=$1"
 time="$(date -u +%Y-%m-%dT%H_%M_%S)"
-json_path="/iperf/$BITRATE-P$PARALLEL-T70s-TCP-UPLOAD-BANDWIDTH-$TESTCASE-$time.json"
+json_path="/iperf/$BITRATE-P$PARALLEL-T70s-TCP-DOWNLOAD-BANDWIDTH-$TESTCASE-$time.json"
 
 # Setup ingress traffic (aka: Set download traffic to be affected by tc limitations)
 tc qdisc add dev eth0 handle ffff: ingress
