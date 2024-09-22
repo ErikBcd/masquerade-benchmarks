@@ -7,6 +7,7 @@ json_path="/iperf/$BITRATE-P$PARALLEL-T70s-UDP-DOWNLOAD-BANDWIDTH-$TESTCASE-PACK
 tc qdisc add dev eth0 handle ffff: ingress
 
 tc filter add dev eth0 parent ffff: protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+tc qdisc replace dev ifb0 root netem loss 0.0%
 
 echo "UDP Download test with changing bandwidth | Bitrate: $BITRATE"
 
