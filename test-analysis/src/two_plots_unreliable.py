@@ -24,13 +24,13 @@ figuresize_wider=(15,9)
 
 def main():
     masq_dir = path.normpath(
-        "../raw-test-results/unreliability_tests/masquerade-70s-200mbits-50/"
+        "../raw-test-results/unreliability_tests/masquerade-70s-200mbits-50-mtu-combined/"
     )
     wg_dir = path.normpath(
-        "../raw-test-results/unreliability_tests/wireguard-70s-200mbits-50/"
+        "../raw-test-results/unreliability_tests/wireguard-70s-200mbits-mtu-fixed/"
     )
     
-    output_path = "../test-result-graphs/joined_results/unreliable_1000mbits_70s/default-mtu/"
+    output_path = "../test-result-graphs/joined_results/unreliable_1000mbits_70s/fixed-mtu-updated/"
 
     masq_results = [f for f in os.listdir(masq_dir) if isfile(join(masq_dir, f))]
     wg_results = [f for f in os.listdir(wg_dir) if isfile(join(wg_dir, f))]
@@ -684,7 +684,7 @@ def udp_interval_plots(
     for t in udp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                i = 1
+                i = 2
                 for s in t.intervals:
                     bps_upload_masq.append({
                         "timestamp": i,
@@ -701,7 +701,7 @@ def udp_interval_plots(
                     })
                     i += 1
             else:
-                i = 1
+                i = 2
                 for s in t.intervals: # Download tests: Client measures bps
                     bps_download_masq.append({
                         "timestamp": i,
@@ -728,7 +728,7 @@ def udp_interval_plots(
     for t in udp_tests_wg: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                i = 1
+                i = 2
                 for s in t.intervals:
                     bps_upload_wg.append({
                         "timestamp": i,
@@ -745,7 +745,7 @@ def udp_interval_plots(
                     })
                     i += 1
             else:
-                i = 1
+                i = 2
                 for s in t.intervals: # Download tests: Client measures bps
                     bps_download_wg.append({
                         "timestamp": i,
@@ -893,7 +893,7 @@ def tcp_interval_plots(
     for t in tcp_tests_wg: 
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                i = 2
+                i = 1
                 for s in t.intervals:
                     bps_upload_wg.append({
                         "timestamp": i,
@@ -909,7 +909,7 @@ def tcp_interval_plots(
                     })
                     i += 1
             else:
-                i = 2
+                i = 1
                 for s in t.intervals: # Download tests: Client measures bps
                     bps_download_wg.append({
                         "timestamp": i,
@@ -1089,11 +1089,11 @@ def packetloss_over_time_plt(
     #print("Masquerade data:\n" + df_masq.to_string())
     
     ax = plt.gca()
-    ax.set_ylim([0.0, max_lost_percent + 10])
+    ax.set_ylim([0.0, max_lost_percent + (max_lost_percent * 0.5)])
     
     fig, ax1 = plt.subplots()
     
-    ax1.set_ylim([0.0, max_lost_percent + 10])
+    ax1.set_ylim([0.0, max_lost_percent + (max_lost_percent * 0.5)])
 
     
     ax2 = ax1.twinx()
@@ -1110,7 +1110,7 @@ def packetloss_over_time_plt(
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     
     if "Latency" in cond_legend:
-        ax1.legend(lines_1, labels_1, loc='upper center')
+        ax1.legend(lines_1, labels_1, loc='center right')
     else:
         ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
     
@@ -1156,24 +1156,24 @@ def jitter_over_time_plt(
     #print("Masquerade data:\n" + df_masq.to_string())
     
     ax = plt.gca()
-    ax.set_ylim([0.0, max_lost_jitter + 10])
+    ax.set_ylim([0.0, max_lost_jitter + (max_lost_jitter * 0.5)])
     
     fig, ax1 = plt.subplots()
     
-    ax1.set_ylim([0.0, max_lost_jitter + 10])
+    ax1.set_ylim([0.0, max_lost_jitter + (max_lost_jitter * 0.5)])
 
     
-    if "Latency" not in cond_legend:
-        ax2 = ax1.twinx()
-        ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
-        ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
-        ax2.set_ylabel(cond_axis_title, color=condition_color)
-        ax2.tick_params(axis='y', labelcolor=condition_color)
-        lines_2, labels_2 = ax2.get_legend_handles_labels()
-        ax2.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
-    else:
-        ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
-        ax1.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
+    #if "Latency" not in cond_legend:
+    ax2 = ax1.twinx()
+    ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
+    ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
+    ax2.set_ylabel(cond_axis_title, color=condition_color)
+    ax2.tick_params(axis='y', labelcolor=condition_color)
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax2.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
+    #else:
+    #    ax1.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
+    #    ax1.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
         
     ax1.plot(mean_df_masq["timestamp"], mean_df_masq["jitter"], linestyle="-", label = "Masquerade", color = masquerade_color, linewidth=linewidth)
     ax1.plot(mean_df_wg["timestamp"], mean_df_wg["jitter"], linestyle="-", label = "WireGuard", color = wireguard_color, linewidth=linewidth)
@@ -1181,7 +1181,7 @@ def jitter_over_time_plt(
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     
     if "Latency" in cond_legend:
-        ax1.legend(lines_1, labels_1, loc='upper center')
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
     else:
         ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
     
@@ -1252,7 +1252,7 @@ def bps_over_time_plt(
     if "Bandwidth" in cond_legend:
         ax1.legend(lines_1, labels_1, loc='upper center')
     elif "Latency" in cond_legend:
-        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper center')
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left')
     else:
         ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper left')
     
