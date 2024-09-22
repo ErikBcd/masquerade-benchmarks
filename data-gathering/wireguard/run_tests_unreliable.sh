@@ -87,7 +87,7 @@ do
     echo "Done ($x / $TESTS) for TCP DOWNLOAD"
 done
 
-# UDP UPLOAD
+# UDP DOWNLOAD
 for x in $(eval echo "{$START..$TESTS}")
 do
     for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
