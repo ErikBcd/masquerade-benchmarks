@@ -19,6 +19,8 @@ let "in_hours=($seconds / 60) / 60"
 
 echo "Running $num_tests tests, will be done in ${in_hours}h"
 
+xset s off && xset -dpms && xset s noblank
+
 # Run tests with different bitrates in succession
 
 # TCP UPLOAD

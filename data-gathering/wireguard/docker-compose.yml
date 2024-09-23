@@ -5,6 +5,7 @@ services:
     container_name: wireguard_server
     cap_add:
       - NET_ADMIN
+      - SYS_MODULE
     environment:
       - PUID=1000
       - PGID=1000
@@ -30,6 +31,7 @@ services:
     image: wg_lossy
     container_name: wireguard_client
     cap_add:
+      - SYS_MODULE
       - NET_ADMIN
     environment:
       - PUID=1000
