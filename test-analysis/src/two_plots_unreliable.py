@@ -130,46 +130,46 @@ def main():
         else:
             print("Failed test: " + p)
     
-    if len(tcp_tests_masq_pl_mtu200) != 0:
-        analyze_tcp(
-            tcp_tests_masq_pl_mtu200, 
-            tcp_tests_wg_pl_mtu200, 
-            output_path + '/tcp/packetloss/mtu200_',
-            [0, 10, 20, 30, 40, 50, 60, 70],
-            [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
-            "packetloss",
-            "Packet Loss (%)",
-            "Packet Loss")
-    
-    analyze_tcp(
-        tcp_tests_masq_pl, 
-        tcp_tests_wg_pl, 
-        output_path + '/tcp/packetloss/',
-        [0, 10, 20, 30, 40, 50, 60, 70],
-        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
-        "packetloss",
-        "Packet Loss (%)",
-        "Packet Loss")
-    
-    analyze_tcp(
-        tcp_tests_masq_delay, 
-        tcp_tests_wg_delay, 
-        output_path + '/tcp/delay/',
-        [0, 10, 20, 30, 40, 50, 60, 70],
-        [0, 10, 20, 50, 20, 10, 0, 0],
-        "delay",
-        "Latency (ms)",
-        "Latency")
-    
-    analyze_tcp(
-        tcp_tests_masq_bandwidth, 
-        tcp_tests_wg_bandwidth, 
-        output_path + '/tcp/bandwidth/',
-        [10, 20, 30, 40, 50, 60],
-        [50, 30, 10, 30, 50, 50],
-        "bandwidth",
-        "Bandwidth Limit (mbit/s)",
-        "Bandwidth Limit")
+    #if len(tcp_tests_masq_pl_mtu200) != 0:
+    #    analyze_tcp(
+    #        tcp_tests_masq_pl_mtu200, 
+    #        tcp_tests_wg_pl_mtu200, 
+    #        output_path + '/tcp/packetloss/mtu200_',
+    #        [0, 10, 20, 30, 40, 50, 60, 70],
+    #        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+    #        "packetloss",
+    #        "Packet Loss (%)",
+    #        "Packet Loss")
+    #
+    #analyze_tcp(
+    #    tcp_tests_masq_pl, 
+    #    tcp_tests_wg_pl, 
+    #    output_path + '/tcp/packetloss/',
+    #    [0, 10, 20, 30, 40, 50, 60, 70],
+    #    [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+    #    "packetloss",
+    #    "Packet Loss (%)",
+    #    "Packet Loss")
+    #
+    #analyze_tcp(
+    #    tcp_tests_masq_delay, 
+    #    tcp_tests_wg_delay, 
+    #    output_path + '/tcp/delay/',
+    #    [0, 10, 20, 30, 40, 50, 60, 70],
+    #    [0, 10, 20, 50, 20, 10, 0, 0],
+    #    "delay",
+    #    "Latency (ms)",
+    #    "Latency")
+    #
+    #analyze_tcp(
+    #    tcp_tests_masq_bandwidth, 
+    #    tcp_tests_wg_bandwidth, 
+    #    output_path + '/tcp/bandwidth/',
+    #    [10, 20, 30, 40, 50, 60],
+    #    [50, 30, 10, 30, 50, 50],
+    #    "bandwidth",
+    #    "Bandwidth Limit (mbit/s)",
+    #    "Bandwidth Limit")
     
     # TODO: Fix packet loss results
     #if len(udp_tests_masq_pl) != 0:
@@ -185,36 +185,36 @@ def main():
     #else:
     #    print("No usable udp tests for packet loss at mtu 800!")
     
-    #if len(udp_tests_masq_pl_mtu200) != 0:
-    #    analyze_udp(
-    #        udp_tests_masq_pl_mtu200, 
-    #        udp_tests_wg_pl_mtu200, 
-    #        output_path + '/udp/packetloss/mtu200_',
-    #        [0, 10, 20, 30, 40, 50, 60, 70],
-    #        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
-    #        "packetloss",
-    #        "Packet Loss (%)",
-    #        "Packet Loss")
-    #
-    #analyze_udp(
-    #    udp_tests_masq_delay, 
-    #    udp_tests_wg_delay, 
-    #    output_path + '/udp/delay/',
-    #    [0, 10, 20, 30, 40, 50, 60, 70],
-    #    [0, 10, 20, 50, 20, 10, 0, 0],
-    #    "delay",
-    #    "Latency (ms)",
-    #    "Latency")
-    #
-    #analyze_udp(
-    #    udp_tests_masq_bandwidth, 
-    #    udp_tests_wg_bandwidth, 
-    #    output_path + '/udp/bandwidth/',
-    #    [10, 20, 30, 40, 50, 60],
-    #    [50, 30, 10, 30, 50, 50],
-    #    "bandwidth",
-    #    "Bandwidth Limit (mbit/s)",
-    #    "Bandwidth Limit")
+    if len(udp_tests_masq_pl_mtu200) != 0:
+        analyze_udp(
+            udp_tests_masq_pl_mtu200, 
+            udp_tests_wg_pl_mtu200, 
+            output_path + '/udp/packetloss/mtu200_',
+            [0, 10, 20, 30, 40, 50, 60, 70],
+            [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+            "packetloss",
+            "Packet Loss (%)",
+            "Packet Loss")
+    
+    analyze_udp(
+        udp_tests_masq_delay, 
+        udp_tests_wg_delay, 
+        output_path + '/udp/delay/',
+        [0, 10, 20, 30, 40, 50, 60, 70],
+        [0, 10, 20, 50, 20, 10, 0, 0],
+        "delay",
+        "Latency (ms)",
+        "Latency")
+    
+    analyze_udp(
+        udp_tests_masq_bandwidth, 
+        udp_tests_wg_bandwidth, 
+        output_path + '/udp/bandwidth/',
+        [10, 20, 30, 40, 50, 60],
+        [50, 30, 10, 30, 50, 50],
+        "bandwidth",
+        "Bandwidth Limit (mbit/s)",
+        "Bandwidth Limit")
 
 def analyze_tcp(
     tcp_tests_masq: list[Iperf3DataTCP], 
@@ -851,7 +851,7 @@ def tcp_interval_plots(
     for t in tcp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                i = 1
+                i = 2
                 for s in t.intervals:
                     bps_upload_masq.append({
                         "timestamp": i,
@@ -867,7 +867,7 @@ def tcp_interval_plots(
                     })
                     i += 1
             else:
-                i = 1
+                i = 2
                 for s in t.intervals: # Download tests: Client measures bps
                     bps_download_masq.append({
                         "timestamp": i,
@@ -878,7 +878,7 @@ def tcp_interval_plots(
                         "retransmits": s.retransmits,
                     })
                     rtt_download_masq.append({
-                        "timestamp": i+1,
+                        "timestamp": i,
                         "rtt": s.rtt * 0.001,
                     })
                     i += 1
@@ -893,7 +893,7 @@ def tcp_interval_plots(
     for t in tcp_tests_wg: 
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
-                i = 1
+                i = 2
                 for s in t.intervals:
                     bps_upload_wg.append({
                         "timestamp": i,
@@ -904,12 +904,12 @@ def tcp_interval_plots(
                         "retransmits": s.retransmits,
                     })
                     rtt_upload_wg.append({
-                        "timestamp": i+1,
+                        "timestamp": i,
                         "rtt": s.rtt * 0.001,
                     })
                     i += 1
             else:
-                i = 1
+                i = 2
                 for s in t.intervals: # Download tests: Client measures bps
                     bps_download_wg.append({
                         "timestamp": i,
@@ -925,27 +925,27 @@ def tcp_interval_plots(
                     })
                     i += 1
     
-    #bps_over_time_plt(
-    #    bps_download_wg, 
-    #    bps_download_masq, 
-    #    base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-    #    condition_legend_label + "\nTCP Download bitrate over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s ",
-    #    condition_times,
-    #    condition_values,
-    #    condition_axis_label,
-    #    condition_legend_label
-    #)
-    #
-    #bps_over_time_plt(
-    #    bps_upload_wg, 
-    #    bps_upload_masq, 
-    #    base_path + "bps_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-    #    condition_legend_label + "\nTCP Upload bitrate over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
-    #    condition_times,
-    #    condition_values,
-    #    condition_axis_label,
-    #    condition_legend_label
-    #)
+    bps_over_time_plt(
+        bps_download_wg, 
+        bps_download_masq, 
+        base_path + "bps_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
+        condition_legend_label + "\nTCP Download bitrate over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s ",
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
+    )
+    
+    bps_over_time_plt(
+        bps_upload_wg, 
+        bps_upload_masq, 
+        base_path + "bps_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
+        condition_legend_label + "\nTCP Upload bitrate over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
+    )
     
     rtt_over_time_plt(
         rtt_download_wg, 
@@ -969,27 +969,27 @@ def tcp_interval_plots(
         condition_legend_label
     )
     
-    #retransmits_over_time_plt(
-    #    retrans_upload_wg, 
-    #    retrans_upload_masq, 
-    #    base_path + "retrans_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-    #    condition_legend_label+"\nTCP Upload Retransmits over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
-    #    condition_times,
-    #    condition_values,
-    #    condition_axis_label,
-    #    condition_legend_label
-    #)
-    #
-    #retransmits_over_time_plt(
-    #    retrans_download_wg, 
-    #    retrans_download_masq, 
-    #    base_path + "retrans_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
-    #    condition_legend_label+"\nTCP Download Retransmits over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
-    #    condition_times,
-    #    condition_values,
-    #    condition_axis_label,
-    #    condition_legend_label
-    #)
+    retransmits_over_time_plt(
+        retrans_upload_wg, 
+        retrans_upload_masq, 
+        base_path + "retrans_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
+        condition_legend_label+"\nTCP Upload Retransmits over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
+    )
+    
+    retransmits_over_time_plt(
+        retrans_download_wg, 
+        retrans_download_masq, 
+        base_path + "retrans_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
+        condition_legend_label+"\nTCP Download Retransmits over 70s\nTarget Bitrate: " + str(target_bps) + "mbit/s",
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
+    )
  
 def rtt_over_time_plt(
     data_wg, 
@@ -1197,7 +1197,8 @@ def jitter_over_time_plt(
     # Save the plot to a file
     print("Saving plot as " + path + ".png")
     plt.savefig(path + ".png", dpi=300)
-    plt.savefig(path + ".pdf")
+    plt.savefig(path + ".pdf")  
+
     plt.close() 
 
 def bps_over_time_plt(
