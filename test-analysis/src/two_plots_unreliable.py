@@ -27,7 +27,7 @@ def main():
         "../raw-test-results/unreliability_tests/masquerade-70s-200mbits-50-mtu-combined/"
     )
     wg_dir = path.normpath(
-        "../raw-test-results/unreliability_tests/wireguard-70s-200mbits-mtu-fixed/"
+        "../raw-test-results/unreliability_tests/wireguard-70s-200mbits-mtu-fixed-again/"
     )
     
     output_path = "../test-result-graphs/joined_results/unreliable_1000mbits_70s/fixed-mtu-updated/"
@@ -130,46 +130,46 @@ def main():
         else:
             print("Failed test: " + p)
     
-    #if len(tcp_tests_masq_pl_mtu200) != 0:
-    #    analyze_tcp(
-    #        tcp_tests_masq_pl_mtu200, 
-    #        tcp_tests_wg_pl_mtu200, 
-    #        output_path + '/tcp/packetloss/mtu200_',
-    #        [0, 10, 20, 30, 40, 50, 60, 70],
-    #        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
-    #        "packetloss",
-    #        "Packet Loss (%)",
-    #        "Packet Loss")
-    #
-    #analyze_tcp(
-    #    tcp_tests_masq_pl, 
-    #    tcp_tests_wg_pl, 
-    #    output_path + '/tcp/packetloss/',
-    #    [0, 10, 20, 30, 40, 50, 60, 70],
-    #    [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
-    #    "packetloss",
-    #    "Packet Loss (%)",
-    #    "Packet Loss")
-    #
-    #analyze_tcp(
-    #    tcp_tests_masq_delay, 
-    #    tcp_tests_wg_delay, 
-    #    output_path + '/tcp/delay/',
-    #    [0, 10, 20, 30, 40, 50, 60, 70],
-    #    [0, 10, 20, 50, 20, 10, 0, 0],
-    #    "delay",
-    #    "Latency (ms)",
-    #    "Latency")
-    #
-    #analyze_tcp(
-    #    tcp_tests_masq_bandwidth, 
-    #    tcp_tests_wg_bandwidth, 
-    #    output_path + '/tcp/bandwidth/',
-    #    [10, 20, 30, 40, 50, 60],
-    #    [50, 30, 10, 30, 50, 50],
-    #    "bandwidth",
-    #    "Bandwidth Limit (mbit/s)",
-    #    "Bandwidth Limit")
+    if len(tcp_tests_masq_pl_mtu200) != 0:
+        analyze_tcp(
+            tcp_tests_masq_pl_mtu200, 
+            tcp_tests_wg_pl_mtu200, 
+            output_path + '/tcp/packetloss/mtu200_',
+            [0, 10, 20, 30, 40, 50, 60, 70],
+            [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+            "packetloss",
+            "Packet Loss (%)",
+            "Packet Loss")
+    
+    analyze_tcp(
+        tcp_tests_masq_pl, 
+        tcp_tests_wg_pl, 
+        output_path + '/tcp/packetloss/',
+        [0, 10, 20, 30, 40, 50, 60, 70],
+        [0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0, 0.0],
+        "packetloss",
+        "Packet Loss (%)",
+        "Packet Loss")
+    
+    analyze_tcp(
+        tcp_tests_masq_delay, 
+        tcp_tests_wg_delay, 
+        output_path + '/tcp/delay/',
+        [0, 10, 20, 30, 40, 50, 60, 70],
+        [0, 10, 20, 50, 20, 10, 0, 0],
+        "delay",
+        "Latency (ms)",
+        "Latency")
+    
+    analyze_tcp(
+        tcp_tests_masq_bandwidth, 
+        tcp_tests_wg_bandwidth, 
+        output_path + '/tcp/bandwidth/',
+        [10, 20, 30, 40, 50, 60],
+        [50, 30, 10, 30, 50, 50],
+        "bandwidth",
+        "Bandwidth Limit (mbit/s)",
+        "Bandwidth Limit")
     
     # TODO: Fix packet loss results
     #if len(udp_tests_masq_pl) != 0:
@@ -817,16 +817,16 @@ def udp_interval_plots(
         condition_legend_label
     )
     
-    #packetloss_over_time_plt(
-    #    packetloss_upload_wg, 
-    #    packetloss_upload_masq, 
-    #    base_path + "pl_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-    #    "UDP Upload Packetloss over time with target " + str(target_bps) + "mbit/s | " + condition_legend_label,
-    #    condition_times,
-    #    condition_values,
-    #    condition_axis_label,
-    #    condition_legend_label
-    #)
+    packetloss_over_time_plt(
+        packetloss_upload_wg, 
+        packetloss_upload_masq, 
+        base_path + "pl_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
+        "UDP Upload Packetloss over time with target " + str(target_bps) + "mbit/s | " + condition_legend_label,
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
+    )
 # Shows how the bps developed over time
 def tcp_interval_plots(
     target_bps, 
