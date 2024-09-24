@@ -48,7 +48,7 @@ do
     for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
     do
         echo "Testing $i M ($x / $TESTS)"
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT=1 iperf3
+        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD" -e PACKET_SIZE=800 iperf3
         docker-compose down --remove-orphans
     done
     echo "Done ($x / $TESTS) for TCP UPLOAD"
@@ -60,7 +60,7 @@ do
     for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
     do
         echo "Testing $i M"
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT=2 iperf3
+        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-UPLOAD" -e PACKET_SIZE=800 iperf3
         docker-compose down --remove-orphans
     done
     echo "Done ($x / $TESTS) for UDP UPLOAD"
@@ -72,7 +72,7 @@ do
     for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
     do
         echo "Testing $i M"
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT=3 iperf3
+        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-DOWNLOAD" -e PACKET_SIZE=800 iperf3
         docker-compose down --remove-orphans
     done
     echo "Done ($x / $TESTS) for TCP DOWNLOAD"
@@ -84,7 +84,7 @@ do
     for i in $(seq $BITRATE_START $BITRATE_STEP $BITRATE_END)
     do
         echo "Testing $i M"
-        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT=4 iperf3
+        docker compose run -e BITRATE="$i" -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="$x" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="UDP-DOWNLOAD" -e PACKET_SIZE=800 iperf3
         docker-compose down --remove-orphans
     done
     echo "Done ($x / $TESTS) for UDP DOWNLOAD"
