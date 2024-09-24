@@ -132,7 +132,7 @@ do
     echo "Done ($x / $TESTS) for UDP DOWNLOAD"
 done
 
-## For long tests it's nice to shut the system down afterwards
+## For long tests it's nice to automatically shut the system down afterwards
 ## Uncomment this if you want that
 
 #echo "TESTS DONE! SHUTTING DOWN IN 5 MINUTES!"

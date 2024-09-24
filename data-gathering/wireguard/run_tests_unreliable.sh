@@ -26,7 +26,6 @@ BITRATE_END=200
 docker compose down --remove-orphans
 
 # Print the approximate duration for all tests
-
 let "num_tests=($BITRATE_END / $BITRATE_STEP) * $TESTS * 4 * 4"
 let "seconds=$num_tests * ($TEST_TIME + 5)"
 let "in_hours=($seconds / 60) / 60"
@@ -132,6 +131,9 @@ do
     echo "Done ($x / $TESTS) for UDP DOWNLOAD"
 done
 
+## For long tests it's nice to automatically shut the system down afterwards
+## Uncomment this if you want that
+
 #echo "TESTS DONE! SHUTTING DOWN IN 5 MINUTES!"
 #sleep 300
 #
@@ -150,6 +152,7 @@ done
 # TCP UPLOAD
 #docker compose run -e BITRATE=200 -e TESTTIME="60" -e PARALLEL="$PARALLEL" -e TESTCASE="INTERMEDIARY" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD-PACKETLOSS-GEMODEL" -e PACKET_SIZE=800 iperf3
 #docker-compose down --remove-orphans
+
 #docker compose run -e BITRATE=200 -e TESTTIME="$TEST_TIME" -e PARALLEL="$PARALLEL" -e TESTCASE="PACKETLOSS_TEST" -e IPERF_SERVER_IP="$SERVER_IP" -e CURRENT="TCP-UPLOAD-PACKETLOSS" -e PACKET_SIZE=800 iperf3
 #docker-compose down --remove-orphans
 #
