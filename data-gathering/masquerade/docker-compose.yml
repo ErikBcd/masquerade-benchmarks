@@ -56,9 +56,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Berlin
-      - CURRENT=2
+      - CURRENT=1
       - BITRATE=100
-      - IPERF_SERVER_IP="192.168.0.45"
     network_mode: service:Masquerade
     depends_on:
       - Masquerade
