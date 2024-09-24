@@ -4,6 +4,7 @@ time="$(date -u +%Y-%m-%dT%H_%M_%S)"
 json_path="/iperf/$BITRATE-P$PARALLEL-T70s-TCP-UPLOAD-DELAY-$TESTCASE-$time.json"
 
 # TCP UPLOAD test with regularly changing delay
+tc qdisc replace dev eth0 root netem loss 0.0%
 
 echo "TCP Upload test with changing delay | Bitrate: $BITRATE"
 
