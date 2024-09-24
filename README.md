@@ -22,11 +22,11 @@ The Docker container for iPerf3 accepts multiple environment variables that will
     * This is used for automated tests, where you can set this to the 
 * IPERF_SERVER_IP
     * IP of the iPerf3 server
-* TESTTIME
+* TESTTIME [ Seconds ]
     * For how long the test is supposed to be ran
-* BITRATE [ default = 100 ]
+* BITRATE [ Mbit/s, default = 100 ]
     * How much data the iPerf3 sender is supposed to be sending in Mbit/s
-* PACKET_SIZE
+* PACKET_SIZE [ bytes ]
     * The maximum size of individual packets that iPerf3 will send
 * PARALLEL
     * How many tests should be ran in parallel
@@ -35,7 +35,7 @@ The Docker container for iPerf3 accepts multiple environment variables that will
 
 An example to start a TCP upload test with introduced packetloss:
 ```
-docker compose run -e BITRATE=200 -e TESTTIME="$TEST_TIME" -e PARALLEL=1 -e TESTCASE="1" -e IPERF_SERVER_IP="192.168.0.45" -e CURRENT="TCP-UPLOAD-PACKETLOSS" -e PACKET_SIZE=800 iperf3
+docker compose run -e BITRATE=200 -e TESTTIME=60 -e PARALLEL=1 -e TESTCASE="1" -e IPERF_SERVER_IP="192.168.0.45" -e CURRENT="TCP-UPLOAD-PACKETLOSS" -e PACKET_SIZE=800 iperf3
 ```
 
 In addition to that, each VPN test directory also includes test scripts for automated tests that you can change to your liking. These are called `run_tests.sh` and `run_tests_unreliable.sh`, and can be used as further examples.
