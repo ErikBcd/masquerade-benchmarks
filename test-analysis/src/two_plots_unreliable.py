@@ -27,7 +27,7 @@ def main():
         "../raw-test-results/unreliability_tests/masquerade-70s-200mbits-50-mtu-combined/"
     )
     wg_dir = path.normpath(
-        "../raw-test-results/unreliability_tests/wireguard-70s-200mbits-mtu-fixed-again/"
+        "../raw-test-results/unreliability_tests/wireguard-70s-200mbits-mtu-fixed-again-again/"
     )
     
     output_path = "../test-result-graphs/joined_results/unreliable_1000mbits_70s/fixed-mtu-updated/"
