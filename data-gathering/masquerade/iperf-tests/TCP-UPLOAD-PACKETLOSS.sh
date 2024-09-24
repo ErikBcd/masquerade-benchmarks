@@ -2,7 +2,8 @@
 #echo "Testcase=$1"
 time="$(date -u +%Y-%m-%dT%H_%M_%S)"
 json_path="/iperf/$BITRATE-P$PARALLEL-T70s-TCP-UPLOAD-PACKETLOSS-$TESTCASE-PACKET_SIZE-$PACKET_SIZE-$time.json"
-
+tc qdisc replace dev eth0 root netem loss 0.0%
+tc qdisc replace dev ifb0 root netem loss 0.0%
 #sleep infinity
 
 # TCP UPLOAD test with regularly changing packetloss

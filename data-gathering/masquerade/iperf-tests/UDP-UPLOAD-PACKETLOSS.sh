@@ -4,6 +4,8 @@ time="$(date -u +%Y-%m-%dT%H_%M_%S)"
 json_path="/iperf/$BITRATE-P$PARALLEL-T70s-UDP-UPLOAD-PACKETLOSS-$TESTCASE-PACKET_SIZE-$PACKET_SIZE-$time.json"
 
 echo "UDP Upload test with changing packet loss | Bitrate: $BITRATE"
+tc qdisc replace dev eth0 root netem loss 0.0%
+tc qdisc replace dev ifb0 root netem loss 0.0%
 
 # UDP UPLOAD test with regularly changing delay
 

@@ -49,7 +49,7 @@ mtu = "1500"
 # Congestion algorithm for QUIC to use.
 # One of "cubic", "bbr2", "bbr", "reno"
 
-congestion_algorithm = "reno"
+congestion_algorithm = "bbr"
 
 # Max rate for pacing. Set 0 for no limit
 max_pacing_rate = 100
