@@ -62,6 +62,8 @@ All generated iPerf3 logs will be saved as JSONs inside the `iperf-logs` directo
 The images are kept as basic as possible to reduce the amount of side effects that can possibly happen.
 There are build scripts located inside the `test-images`, so the containers have the correct names that are used inside the docker-compose files for the actual tests.
 
+Docker images built with Docker version 27.2.1, build 9e34c9bb39.
+
 
 ## test-analysis
 .. contains scripts for analysing gathered iperf3 json logs.
