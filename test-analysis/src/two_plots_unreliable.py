@@ -174,6 +174,7 @@ def main():
         "Bandwidth")
     
     # TODO: Fix packet loss results
+    # This is commented because packet loss for UDP is only stable for low packet lengths
     #if len(udp_tests_masq_pl) != 0:
     #    analyze_udp(
     #        udp_tests_masq_pl, 
@@ -823,7 +824,7 @@ def udp_interval_plots(
         packetloss_upload_wg, 
         packetloss_upload_masq, 
         base_path + "pl_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
-        "UDP Upload Packetloss over time with target " + str(target_bps) + "Mbit/s | " + condition_legend_label,
+        condition_legend_label+"\nUDP Upload Packetloss over 70s\nTarget Bitrate: " + str(target_bps) + "Mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -850,6 +851,9 @@ def tcp_interval_plots(
     rtt_download_masq   = []
     rtt_upload_masq     = []
     
+    cwnd_download_masq = []
+    cwnd_upload_masq = []
+    
     for t in tcp_tests_masq: # Download tests: Server measures bps (not 100% sure!)
         if t.target_bps == target_bps * 1000000:
             if t.is_upload:
@@ -864,8 +868,12 @@ def tcp_interval_plots(
                         "retransmits": s.retransmits,
                     })
                     rtt_upload_masq.append({
-                        "timestamp": i+1,
+                        "timestamp": i,
                         "rtt": s.rtt * 0.001,
+                    })
+                    cwnd_upload_masq.append({
+                        "timestamp": i,
+                        "cwnd": s.snd_cwnd / 1000,
                     })
                     i += 1
             else:
@@ -883,6 +891,10 @@ def tcp_interval_plots(
                         "timestamp": i,
                         "rtt": s.rtt * 0.001,
                     })
+                    cwnd_download_masq.append({
+                        "timestamp": i,
+                        "cwnd": s.snd_cwnd / 1000,
+                    })
                     i += 1
                     
     bps_download_wg = []
@@ -891,6 +903,8 @@ def tcp_interval_plots(
     retrans_upload_wg = []
     rtt_upload_wg = []
     rtt_download_wg = []
+    cwnd_download_wg = []
+    cwnd_upload_wg = []
     
     for t in tcp_tests_wg: 
         if t.target_bps == target_bps * 1000000:
@@ -909,6 +923,10 @@ def tcp_interval_plots(
                         "timestamp": i,
                         "rtt": s.rtt * 0.001,
                     })
+                    cwnd_upload_wg.append({
+                        "timestamp": i,
+                        "cwnd": s.snd_cwnd / 1000,
+                    })
                     i += 1
             else:
                 i = 2
@@ -922,8 +940,12 @@ def tcp_interval_plots(
                         "retransmits": s.retransmits,
                     })
                     rtt_download_wg.append({
-                        "timestamp": i+1,
+                        "timestamp": i,
                         "rtt": s.rtt * 0.001,
+                    })
+                    cwnd_download_wg.append({
+                        "timestamp": i,
+                        "cwnd": s.snd_cwnd / 1000,
                     })
                     i += 1
     
@@ -965,6 +987,28 @@ def tcp_interval_plots(
         rtt_upload_masq, 
         base_path + "rtt_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
         condition_legend_label+"\nTCP Upload RTT over 70s\nTarget Bitrate: " + str(target_bps) + "Mbit/s",
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
+    )
+    
+    cwnd_over_time_plt(
+        cwnd_upload_wg, 
+        cwnd_upload_masq, 
+        base_path + "cwnd_over_time_upload_" + str(target_bps) + "mbits_target_" + condition_name,
+        condition_legend_label+"\nTCP Upload Congestion Window over 70s\nTarget Bitrate: " + str(target_bps) + "Mbit/s",
+        condition_times,
+        condition_values,
+        condition_axis_label,
+        condition_legend_label
+    )
+    
+    cwnd_over_time_plt(
+        cwnd_download_wg, 
+        cwnd_download_masq, 
+        base_path + "cwnd_over_time_download_" + str(target_bps) + "mbits_target_" + condition_name,
+        condition_legend_label+"\nTCP Download Congestion Window over 70s\nTarget Bitrate: " + str(target_bps) + "Mbit/s",
         condition_times,
         condition_values,
         condition_axis_label,
@@ -1051,6 +1095,72 @@ def rtt_over_time_plt(
     
     ax1.set_xlabel("Timestamp (s)")
     ax1.set_ylabel("Round Trip Time (ms)")
+    plt.title(title)
+
+    #plt.legend()
+
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Save the plot to a file
+    print("Saving plot as " + path + ".png")
+    plt.savefig(path + ".png", dpi=300)
+    plt.savefig(path + ".pdf")
+    plt.close() 
+
+def cwnd_over_time_plt(
+    data_wg, 
+    data_masq, 
+    path, 
+    title,
+    condition_time, 
+    condition_val, 
+    cond_axis_title, 
+    cond_legend):
+    
+    plt.close()
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams["figure.figsize"] = figuresize
+    df_wg = pd.DataFrame(data_wg)
+    
+    #print("wg data: \n" + df_wg)
+    mean_df_wg = df_wg.groupby("timestamp", as_index=False)["cwnd"].mean()
+    df_masq = pd.DataFrame(data_masq)
+    mean_df_masq = df_masq.groupby("timestamp", as_index=False)["cwnd"].mean()
+    if mean_df_masq['cwnd'].max() > mean_df_wg['cwnd'].max():
+        max_cwnd = mean_df_masq['cwnd'].max()
+    else:
+        max_cwnd = mean_df_wg['cwnd'].max()
+        
+    #print("Masquerade data:\n" + df_masq.to_string())
+    
+    ax = plt.gca()
+    ax.set_ylim([0.0, max_cwnd + (max_cwnd / 2)])
+    
+    fig, ax1 = plt.subplots()
+    
+    ax1.set_ylim([0.0, max_cwnd + (max_cwnd / 2)])
+
+    ax2 = ax1.twinx()
+    ax2.set_ylim([0.0, (max(condition_val) + (max(condition_val) * 0.5))])
+    ax2.step(condition_time, condition_val, where='post', label=cond_legend, color=condition_color, linestyle=condition_line_style, linewidth=linewidth)
+    ax2.set_ylabel(cond_axis_title, color=condition_color)
+    ax2.tick_params(axis='y', labelcolor=condition_color)
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax2.fill_between(condition_time, condition_val, step='post', alpha=condition_fill_alpha, color=condition_fill_color)
+        
+    ax1.plot(mean_df_masq["timestamp"], mean_df_masq["cwnd"], linestyle="-", label = "Masquerade", color = masquerade_color, linewidth=linewidth)
+    ax1.plot(mean_df_wg["timestamp"], mean_df_wg["cwnd"], linestyle="-", label = "WireGuard", color = wireguard_color, linewidth=linewidth)
+    
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    
+    if "Latency" in cond_legend:
+        ax1.legend(lines_1, labels_1, loc='upper right')
+    else:
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
+    
+    ax1.set_xlabel("Timestamp (s)")
+    ax1.set_ylabel("Congestion Window (Kbit)")
     plt.title(title)
 
     #plt.legend()
