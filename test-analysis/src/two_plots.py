@@ -18,14 +18,17 @@ fontsize=30
 figuresize=(13,9)
 figuresize_wider=(15,9)
 
-def main():
-    masq_dir = path.normpath(
+# Testfile directories
+masq_dir = path.normpath(
         "../raw-test-results/60s-1000mbits-50mbitInterval-masquerade/"
-    )
-    wg_dir = path.normpath(
-        "../raw-test-results/60s-1000mbits-50mbitInterval-WireGuard/"
-    )
+)
+wg_dir = path.normpath(
+    "../raw-test-results/60s-1000mbits-50mbitInterval-WireGuard/"
+)
+# Output for the plots
+output_path = "../test-result-graphs/joined_results/reliable_1000mbits_60s/"
 
+def main():
     masq_results = [f for f in os.listdir(masq_dir) if isfile(join(masq_dir, f))]
     wg_results = [f for f in os.listdir(wg_dir) if isfile(join(wg_dir, f))]
 
@@ -71,8 +74,8 @@ def main():
         else:
             print("Failed test: " + p)
             
-    analyze_tcp(tcp_tests_masq, tcp_tests_wg, '../test-result-graphs/joined_results/reliable_1000mbits_60s/tcp/')
-    analyze_udp(udp_tests_masq, udp_tests_wg, '../test-result-graphs/joined_results/reliable_1000mbits_60s/udp/')
+    analyze_tcp(tcp_tests_masq, tcp_tests_wg, output_path + 'tcp/')
+    analyze_udp(udp_tests_masq, udp_tests_wg, output_path + 'udp/')
 
 def analyze_tcp(tcp_tests_masq: list[Iperf3DataTCP], tcp_tests_wg: list[Iperf3DataTCP], base_path):
     bps_upload_wg = []
