@@ -45,8 +45,8 @@ The folders also contain the relevant config directories of Masquerade/WireGuard
 
 The server can be ran however you like, as long as the client can connect. 
 Two limitations:
-    * If you don't change the test scripts you should run the server on port 7070
-    * You should start the server in json mode, since the client will ask for the server output (test-analysis only parses json files and needs the server output in some cases)
+* If you don't change the test scripts you should run the server on port 7070
+* You should start the server in json mode, since the client will ask for the server output (test-analysis only parses json files and needs the server output in some cases)
 
 Example command for starting the server:
 ```
